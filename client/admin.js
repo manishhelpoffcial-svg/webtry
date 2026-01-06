@@ -17,13 +17,21 @@ function updateCategorySelects() {
   if (!mainSelect || !parentSelect) return;
 
   const mainCats = categories.filter(c => !c.parent_id);
+  console.log("Updating selects with main categories:", mainCats);
   
   mainSelect.innerHTML = '<option value="">Select Category</option>';
   parentSelect.innerHTML = '<option value="">Main Category</option>';
 
   mainCats.forEach(c => {
-    mainSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-    parentSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+    const opt1 = document.createElement("option");
+    opt1.value = c.id;
+    opt1.textContent = c.name;
+    mainSelect.appendChild(opt1);
+
+    const opt2 = document.createElement("option");
+    opt2.value = c.id;
+    opt2.textContent = c.name;
+    parentSelect.appendChild(opt2);
   });
 }
 

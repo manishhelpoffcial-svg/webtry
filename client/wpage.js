@@ -63,36 +63,47 @@ function filter(catId) {
   
   // Update Active Class
   document.querySelectorAll('.category-bar button').forEach(btn => btn.classList.remove('active'));
-  const activeBtn = document.getElementById(`cat-${catId}`);
-  if (activeBtn) activeBtn.classList.add('active');
+  
+  // Use a more robust selector that handles both numeric IDs and string fallbacks
+  const buttons = document.querySelectorAll('.category-bar button');
+  buttons.forEach(btn => {
+    if (btn.id === `cat-${catId}` || (catId === 'graphic_design' && btn.innerText.includes('Graphic')) || (catId === 'video_editing' && btn.innerText.includes('Video'))) {
+        btn.classList.add('active');
+    }
+  });
 
   const subBar = document.getElementById('subcatBar');
   if (!subBar) return;
   subBar.innerHTML = "";
   
-  if (catId !== 'all') {
-    const subCats = categories.filter(c => String(c.parent_id) === String(catId));
+  // Robust check for sub-categories
+  const subCats = categories.filter(c => String(c.parent_id) === String(catId));
+  
+  // FALLBACK Sub-categories if DB is still populating/empty
+  let fallbackSubs = [];
+  if (catId === 'graphic_design' || (catId !== 'all' && !isNaN(catId) && categories.find(c => c.id == catId)?.name === 'Graphics Design')) {
+    fallbackSubs = ["Poster", "Logo", "Menu Card", "Business Card", "Thumbnail"];
+  } else if (catId === 'video_editing' || (catId !== 'all' && !isNaN(catId) && categories.find(c => c.id == catId)?.name === 'Video Editing')) {
+    fallbackSubs = ["Short Video", "Long Video", "Wedding Video"];
+  }
+
+  if (subCats.length > 0 || fallbackSubs.length > 0) {
+    subBar.style.display = 'flex';
+    let html = '<button id="sub-all" class="active" onclick="filterSub(\'all\')">All Sub</button>';
+    
     if (subCats.length > 0) {
-      subBar.style.display = 'flex';
-      let html = '<button id="sub-all" class="active" onclick="filterSub(\'all\')">All Sub</button>';
-      subCats.forEach(s => {
-        html += `<button id="sub-${s.id}" onclick="filterSub(${s.id})">${s.name}</button>`;
-      });
-      subBar.innerHTML = html;
+        subCats.forEach(s => {
+            html += `<button id="sub-${s.id}" onclick="filterSub(${s.id})">${s.name}</button>`;
+        });
     } else {
-      subBar.style.display = 'none';
+        fallbackSubs.forEach(s => {
+            html += `<button onclick="filterSub('${s.toLowerCase().replace(/\s/g, '_')}')">${s}</button>`;
+        });
     }
+    subBar.innerHTML = html;
   } else {
     subBar.style.display = 'none';
   }
-  renderGrid();
-}
-
-function filterSub(subId) {
-  currentSubFilter = subId;
-  document.querySelectorAll('.subcategory-bar button').forEach(btn => btn.classList.remove('active'));
-  const activeBtn = document.getElementById(`sub-${subId}`);
-  if (activeBtn) activeBtn.classList.add('active');
   renderGrid();
 }
 
@@ -103,9 +114,20 @@ function renderGrid() {
   
   let filtered = allWorks;
   if (currentFilter !== 'all') {
-    filtered = filtered.filter(w => String(w.category_id) === String(currentFilter));
+    filtered = filtered.filter(w => {
+        const matchesMain = String(w.category_id) === String(currentFilter);
+        const matchesFallback = (currentFilter === 'graphic_design' && String(w.category_id).toLowerCase().includes('graphic')) || 
+                                (currentFilter === 'video_editing' && String(w.category_id).toLowerCase().includes('video'));
+        return matchesMain || matchesFallback;
+    });
+
     if (currentSubFilter !== 'all') {
-      filtered = filtered.filter(w => String(w.subcategory_id) === String(currentSubFilter));
+      filtered = filtered.filter(w => {
+        const matchesSub = String(w.subcategory_id) === String(currentSubFilter);
+        const subName = categories.find(c => c.id == w.subcategory_id)?.name || "";
+        const matchesFallbackSub = String(currentSubFilter).replace(/_/g, ' ').toLowerCase() === subName.toLowerCase();
+        return matchesSub || matchesFallbackSub;
+      });
     }
   }
 

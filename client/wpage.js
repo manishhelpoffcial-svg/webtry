@@ -10,9 +10,16 @@ async function init() {
     ]);
     allWorks = await worksRes.json();
     categories = await catsRes.json();
+    
+    console.log("Categories data:", categories);
+    
     renderCategoryBar();
     renderGrid();
-  } catch (e) { console.error(e); }
+  } catch (e) { 
+    console.error("Init failed:", e); 
+    // Manual fallback for buttons if API fails
+    renderCategoryBar();
+  }
 }
 
 function renderCategoryBar() {
@@ -20,11 +27,22 @@ function renderCategoryBar() {
   if (!bar) return;
   const mainCats = categories.filter(c => !c.parent_id);
   
+  // LOG FOR DEBUGGING
+  console.log("Categories loaded:", categories);
+  console.log("Main Categories:", mainCats);
+
   let html = `<button id="cat-all" class="active" onclick="filter('all')"><i class="fa-solid fa-border-all"></i> All</button>`;
-  mainCats.forEach(c => {
-    const icon = getCategoryIcon(c.name);
-    html += `<button id="cat-${c.id}" onclick="filter(${c.id})">${icon} ${c.name}</button>`;
-  });
+  
+  if (mainCats.length === 0) {
+    // Fallback if no categories in DB yet
+    html += `<button onclick="filter('graphic_design')"><i class="fa-solid fa-palette"></i> Graphic Design (Fallback)</button>`;
+    html += `<button onclick="filter('video_editing')"><i class="fa-solid fa-video"></i> Video Editing (Fallback)</button>`;
+  } else {
+    mainCats.forEach(c => {
+      const icon = getCategoryIcon(c.name);
+      html += `<button id="cat-${c.id}" onclick="filter(${c.id})">${icon} ${c.name}</button>`;
+    });
+  }
   bar.innerHTML = html;
 }
 
@@ -81,13 +99,14 @@ function filterSub(subId) {
 
 function renderGrid() {
   const grid = document.getElementById('grid');
+  if (!grid) return;
   grid.innerHTML = "";
   
   let filtered = allWorks;
   if (currentFilter !== 'all') {
-    filtered = filtered.filter(w => w.category_id == currentFilter);
+    filtered = filtered.filter(w => String(w.category_id) === String(currentFilter));
     if (currentSubFilter !== 'all') {
-      filtered = filtered.filter(w => w.subcategory_id == currentSubFilter);
+      filtered = filtered.filter(w => String(w.subcategory_id) === String(currentSubFilter));
     }
   }
 

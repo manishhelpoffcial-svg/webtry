@@ -248,6 +248,5 @@ function updateSubCats() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  render();
-  updateIdField();
+  fetchCategories().then(() => render());
 });

@@ -106,6 +106,22 @@ function filter(catId) {
   renderGrid();
 }
 
+function filterSub(subId) {
+  currentSubFilter = subId;
+  // Show active state for sub-categories
+  document.querySelectorAll('#subcatBar button').forEach(btn => btn.classList.remove('active'));
+  
+  const buttons = document.querySelectorAll('#subcatBar button');
+  buttons.forEach(btn => {
+    const clickAttr = btn.getAttribute('onclick') || "";
+    if (btn.id === `sub-${subId}` || clickAttr.includes(`'${subId}'`) || clickAttr.includes(`(${subId})`)) {
+      btn.classList.add('active');
+    }
+  });
+  
+  renderGrid();
+}
+
 function renderGrid() {
   const grid = document.getElementById('grid');
   if (!grid) return;

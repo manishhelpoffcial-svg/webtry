@@ -172,8 +172,14 @@ async function deleteCategory(id) {
 }
 
 async function getData() {
-  const res = await fetch('/api/works');
-  return await res.json();
+  try {
+    const res = await fetch('/api/works');
+    const data = await res.json();
+    return data;
+  } catch (e) {
+    console.error("Fetch works failed", e);
+    return JSON.parse(localStorage.getItem('grafx_works_fallback') || '[]');
+  }
 }
 
 async function save() {
@@ -186,9 +192,10 @@ async function save() {
 
   const work = {
     id: idField.value,
-    category_id: parseInt(cat.value),
-    subcategory_id: subcat.value ? parseInt(subcat.value) : null,
-    image: img.value.trim()
+    category_id: cat.value,
+    subcategory_id: subcat.value || null,
+    image: img.value.trim(),
+    created_at: new Date().toISOString()
   };
 
   try {
@@ -198,7 +205,13 @@ async function save() {
       body: JSON.stringify(work)
     });
 
+    // If server accepts it (even with fallback note), we proceed
     if (res.ok) {
+      // Local backup in case DB has issues
+      const localData = JSON.parse(localStorage.getItem('grafx_works_fallback') || '[]');
+      localData.push(work);
+      localStorage.setItem('grafx_works_fallback', JSON.stringify(localData));
+
       img.value = "";
       cat.value = "";
       subcat.value = "";

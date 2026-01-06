@@ -179,6 +179,21 @@ def delete_work(id):
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+@app.route('/api/works/<id>', methods=['PUT'])
+def update_work(id):
+    if not session.get('logged_in'):
+        return jsonify({"status": "error", "message": "Unauthorized"}), 401
+    data = request.json
+    try:
+        supabase.table('works').update({
+            "image": data.get('image'),
+            "category_id": data.get('category_id'),
+            "subcategory_id": data.get('subcategory_id')
+        }).eq("id", id).execute()
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 @app.route('/api/inquiries', methods=['POST', 'OPTIONS'])
 def add_inquiry():
     if request.method == 'OPTIONS':

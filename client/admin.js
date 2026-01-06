@@ -238,8 +238,53 @@ function getNextId(data) {
 
 async function del(id) {
   if (!confirm("Remove this item?")) return;
-  await fetch(`/api/works/${id}`, { method: 'DELETE' });
-  render();
+  try {
+    const response = await fetch(`/api/works/${id}`, { method: 'DELETE' });
+    if (response.ok) {
+      // Also update local fallback
+      const localData = JSON.parse(localStorage.getItem('grafx_works_fallback') || '[]');
+      const filtered = localData.filter(w => w.id !== id);
+      localStorage.setItem('grafx_works_fallback', JSON.stringify(filtered));
+      render();
+    } else {
+      alert("Failed to delete from server");
+    }
+  } catch (e) {
+    alert("Error connecting to server");
+  }
+}
+
+async function editWork(id) {
+  const data = await getData();
+  const work = data.find(w => w.id === id);
+  if (!work) return;
+
+  const newImg = prompt("Edit Media Link:", work.image);
+  if (newImg === null) return;
+
+  const updatedWork = { ...work, image: newImg.trim() };
+
+  try {
+    const res = await fetch(`/api/works/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedWork)
+    });
+
+    if (res.ok) {
+      const localData = JSON.parse(localStorage.getItem('grafx_works_fallback') || '[]');
+      const idx = localData.findIndex(w => w.id === id);
+      if (idx !== -1) {
+        localData[idx] = updatedWork;
+        localStorage.setItem('grafx_works_fallback', JSON.stringify(localData));
+      }
+      render();
+    } else {
+      alert("Failed to update work");
+    }
+  } catch (e) {
+    alert("Error updating work");
+  }
 }
 
 async function render() {
@@ -270,8 +315,8 @@ async function render() {
       preview = `<img src="${w.image}" onerror="this.src='https://placehold.co/100x100?text=Media'">`;
     }
     
-    const catName = categories.find(c => c.id == w.category_id)?.name || "Unknown";
-    const subName = categories.find(c => c.id == w.subcategory_id)?.name || "";
+    const catName = categories.find(c => String(c.id) === String(w.category_id))?.name || "Unknown";
+    const subName = categories.find(c => String(c.id) === String(w.subcategory_id))?.name || "";
 
     d.innerHTML = `
       ${preview}
@@ -279,7 +324,10 @@ async function render() {
         <b>${w.id}</b>
         <small>${catName} ${subName ? '/ ' + subName : ''}</small>
       </div>
-      <button class="btn-delete" onclick="del('${w.id}')"><i class="fa-solid fa-trash"></i> Delete</button>
+      <div style="display:flex; gap:10px; margin-left:auto;">
+        <button class="btn-edit" style="background:#10b981; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;" onclick="editWork('${w.id}')"><i class="fa-solid fa-pen"></i> Edit</button>
+        <button class="btn-delete" onclick="del('${w.id}')"><i class="fa-solid fa-trash"></i> Delete</button>
+      </div>
     `;
     list.appendChild(d);
   });

@@ -139,11 +139,16 @@ function renderGrid() {
     if (currentSubFilter !== 'all') {
       filtered = filtered.filter(w => {
         const matchesSub = String(w.subcategory_id) === String(currentSubFilter);
-        const subName = categories.find(c => c.id == w.subcategory_id)?.name || "";
+        const subName = categories.find(c => String(c.id) === String(w.subcategory_id))?.name || "";
         const matchesFallbackSub = String(currentSubFilter).replace(/_/g, ' ').toLowerCase() === subName.toLowerCase();
         return matchesSub || matchesFallbackSub;
       });
     }
+  }
+
+  if (filtered.length === 0) {
+    grid.innerHTML = "<p style='grid-column: 1/-1; text-align:center; padding: 40px; color: #64748b;'>No projects found in this category.</p>";
+    return;
   }
 
   filtered.forEach(w => {

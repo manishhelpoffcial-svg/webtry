@@ -1,6 +1,7 @@
 let allWorks = [];
 let categories = [];
 let currentFilter = 'all';
+let currentSubFilter = 'all';
 
 async function init() {
   try {
@@ -73,14 +74,8 @@ function renderCategoryBar() {
   
   mainCats.forEach(c => {
     const icon = getCategoryIcon(c.name);
-    html += `<button id="cat-${c.id}" onclick="filter(${c.id})">${icon} ${c.name}</button>`;
+    html += `<button id="cat-${c.id}" onclick="filter('${c.id}')">${icon} ${c.name}</button>`;
   });
-  
-  // If still empty (e.g. Supabase loading), provide the core 2
-  if (mainCats.length === 0) {
-    html += `<button id="cat-graphic_design" onclick="filter('graphic_design')"><i class="fa-solid fa-palette"></i> Graphic Design</button>`;
-    html += `<button id="cat-video_editing" onclick="filter('video_editing')"><i class="fa-solid fa-video"></i> Video Editing</button>`;
-  }
   
   bar.innerHTML = html;
 }
@@ -119,28 +114,14 @@ function filter(catId) {
   
   const subCats = categories.filter(c => String(c.parent_id) === String(catId));
   
-  let fallbackSubs = [];
-  if (catId === 'graphic_design' || (catId !== 'all' && !isNaN(catId) && categories.find(c => c.id == catId)?.name === 'Graphics Design')) {
-    fallbackSubs = ["Poster", "Logo", "Menu Card", "Business Card", "Thumbnail"];
-  } else if (catId === 'video_editing' || (catId !== 'all' && !isNaN(catId) && categories.find(c => c.id == catId)?.name === 'Video Editing')) {
-    fallbackSubs = ["Short Video", "Long Video", "Wedding Video"];
-  }
-
-  if (subCats.length > 0 || fallbackSubs.length > 0) {
+  if (subCats.length > 0) {
     subBar.style.display = 'flex';
-    let html = ''; // REMOVED "All Sub" button
+    let html = '<button id="sub-all" class="active" onclick="filterSub(\'all\')">All</button>';
     
-    if (subCats.length > 0) {
-        subCats.forEach(s => {
-            const icon = getCategoryIcon(s.name);
-            html += `<button id="sub-${s.id}" onclick="filterSub(${s.id})">${icon} ${s.name}</button>`;
-        });
-    } else {
-        fallbackSubs.forEach(s => {
-            const icon = getCategoryIcon(s);
-            html += `<button onclick="filterSub('${s.toLowerCase().replace(/\s/g, '_')}')">${icon} ${s}</button>`;
-        });
-    }
+    subCats.forEach(s => {
+        const icon = getCategoryIcon(s.name);
+        html += `<button id="sub-${s.id}" onclick="filterSub('${s.id}')">${icon} ${s.name}</button>`;
+    });
     subBar.innerHTML = html;
   } else {
     subBar.style.display = 'none';
@@ -155,8 +136,7 @@ function filterSub(subId) {
   
   const buttons = document.querySelectorAll('#subcatBar button');
   buttons.forEach(btn => {
-    const clickAttr = btn.getAttribute('onclick') || "";
-    if (btn.id === `sub-${subId}` || clickAttr.includes(`'${subId}'`) || clickAttr.includes(`(${subId})`)) {
+    if (btn.id === `sub-${subId}` || (subId === 'all' && btn.id === 'sub-all')) {
       btn.classList.add('active');
     }
   });
@@ -173,17 +153,21 @@ function renderGrid() {
   if (currentFilter !== 'all') {
     filtered = filtered.filter(w => {
         const matchesMain = String(w.category_id) === String(currentFilter);
-        const matchesFallback = (currentFilter === 'graphic_design' && String(w.category_id).toLowerCase().includes('graphic')) || 
-                                (currentFilter === 'video_editing' && String(w.category_id).toLowerCase().includes('video'));
-        return matchesMain || matchesFallback;
+        // Also check if the current category is a parent of the work's subcategory
+        const workSubcat = categories.find(c => String(c.id) === String(w.subcategory_id));
+        const matchesParent = workSubcat && String(workSubcat.parent_id) === String(currentFilter);
+        
+        const catName = categories.find(c => String(c.id) === String(w.category_id))?.name || "";
+        const matchesFallback = (currentFilter === 'graphic_design' && catName.toLowerCase().includes('graphic')) || 
+                                (currentFilter === 'video_editing' && catName.toLowerCase().includes('video'));
+        
+        return matchesMain || matchesParent || matchesFallback;
     });
 
     if (currentSubFilter !== 'all') {
       filtered = filtered.filter(w => {
         const matchesSub = String(w.subcategory_id) === String(currentSubFilter);
-        const subName = categories.find(c => String(c.id) === String(w.subcategory_id))?.name || "";
-        const matchesFallbackSub = String(currentSubFilter).replace(/_/g, ' ').toLowerCase() === subName.toLowerCase();
-        return matchesSub || matchesFallbackSub;
+        return matchesSub;
       });
     }
   }

@@ -116,7 +116,7 @@ function renderCategories() {
     
     const icon = getCategoryIcon(c.name);
     const isSub = c.parent_id;
-    const parentName = isSub ? (categories.find(p => p.id == c.parent_id)?.name || 'Parent') : '';
+    const parentName = isSub ? (categories.find(p => String(p.id) === String(c.parent_id))?.name || 'Parent') : '';
     
     chip.innerHTML = `
       ${icon} 
@@ -125,8 +125,8 @@ function renderCategories() {
         ${isSub ? `<small style="color:#64748b; font-size:10px;">Sub of ${parentName}</small>` : '<small style="color:#10b981; font-size:10px;">Main Category</small>'}
       </div>
       <div style="margin-left:auto; display:flex; gap:8px;">
-        <i class="fa-solid fa-pen" style="cursor:pointer; color:#10b981" onclick="editCategory(${c.id}, '${c.name.replace(/'/g, "\\'")}')" title="Edit Name"></i>
-        <i class="fa-solid fa-trash" style="cursor:pointer; color:#ef4444" onclick="deleteCategory(${c.id})" title="Delete"></i>
+        <i class="fa-solid fa-pen" style="cursor:pointer; color:#10b981" onclick="editCategory('${c.id}', '${c.name.replace(/'/g, "\\'")}')" title="Edit Name"></i>
+        <i class="fa-solid fa-trash" style="cursor:pointer; color:#ef4444" onclick="deleteCategory('${c.id}')" title="Delete"></i>
       </div>
     `;
     list.appendChild(chip);

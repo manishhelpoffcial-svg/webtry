@@ -8,17 +8,59 @@ async function init() {
       fetch('/api/works'),
       fetch('/api/categories')
     ]);
-    allWorks = await worksRes.json();
-    categories = await catsRes.json();
     
-    console.log("Categories data:", categories);
+    let dbWorks = await worksRes.json();
+    const dbCats = await catsRes.json();
+    
+    // Merge DB works with local storage works for complete resilience
+    const localWorks = JSON.parse(localStorage.getItem('grafx_works_fallback') || '[]');
+    
+    // De-duplicate works by ID
+    const workMap = new Map();
+    dbWorks.forEach(w => workMap.set(w.id, w));
+    localWorks.forEach(w => workMap.set(w.id, w));
+    
+    allWorks = Array.from(workMap.values());
+    categories = dbCats;
+    
+    // Fallback categories if API fails or empty
+    if (!categories || categories.length === 0) {
+      categories = [
+        { id: 'graphic_design', name: 'Graphics Design', parent_id: null },
+        { id: 'video_editing', name: 'Video Editing', parent_id: null },
+        { id: 'poster', name: 'Poster', parent_id: 'graphic_design' },
+        { id: 'logo', name: 'Logo', parent_id: 'graphic_design' },
+        { id: 'menu_card', name: 'Menu Card', parent_id: 'graphic_design' },
+        { id: 'business_card', name: 'Business Card', parent_id: 'graphic_design' },
+        { id: 'thumbnail', name: 'Thumbnail', parent_id: 'graphic_design' },
+        { id: 'short_video', name: 'Short Video', parent_id: 'video_editing' },
+        { id: 'long_video', name: 'Long Video', parent_id: 'video_editing' },
+        { id: 'wedding_video', name: 'Wedding Video', parent_id: 'video_editing' }
+      ];
+    }
+    
+    console.log("Portfolio Init:", { worksCount: allWorks.length, catsCount: categories.length });
     
     renderCategoryBar();
     renderGrid();
   } catch (e) { 
     console.error("Init failed:", e); 
-    // Manual fallback for buttons if API fails
+    // Manual fallback for buttons if API fails entirely
+    allWorks = JSON.parse(localStorage.getItem('grafx_works_fallback') || '[]');
+    categories = [
+        { id: 'graphic_design', name: 'Graphics Design', parent_id: null },
+        { id: 'video_editing', name: 'Video Editing', parent_id: null },
+        { id: 'poster', name: 'Poster', parent_id: 'graphic_design' },
+        { id: 'logo', name: 'Logo', parent_id: 'graphic_design' },
+        { id: 'menu_card', name: 'Menu Card', parent_id: 'graphic_design' },
+        { id: 'business_card', name: 'Business Card', parent_id: 'graphic_design' },
+        { id: 'thumbnail', name: 'Thumbnail', parent_id: 'graphic_design' },
+        { id: 'short_video', name: 'Short Video', parent_id: 'video_editing' },
+        { id: 'long_video', name: 'Long Video', parent_id: 'video_editing' },
+        { id: 'wedding_video', name: 'Wedding Video', parent_id: 'video_editing' }
+    ];
     renderCategoryBar();
+    renderGrid();
   }
 }
 

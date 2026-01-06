@@ -33,7 +33,7 @@ function updateSubCats() {
   if (!sub) return;
   sub.innerHTML = '<option value="">Select Sub-Category</option>';
   
-  const subCats = categories.filter(c => c.parent_id == catId);
+  const subCats = categories.filter(c => String(c.parent_id) === String(catId));
   subCats.forEach(c => {
     sub.innerHTML += `<option value="${c.id}">${c.name}</option>`;
   });
@@ -86,7 +86,6 @@ async function save() {
   if (!img.value || !cat.value) return alert("Please fill fields");
 
   const work = {
-    id: getNextId(await getData()),
     category_id: cat.value,
     subcategory_id: subcat.value || null,
     image: img.value

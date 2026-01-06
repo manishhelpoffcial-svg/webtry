@@ -35,9 +35,15 @@ function updateSubCats() {
   
   if (!catId) return;
 
+  // Use numeric comparison for safety
   const subCats = categories.filter(c => String(c.parent_id) === String(catId));
+  console.log("Found sub-categories:", subCats, "for parent ID:", catId);
+  
   subCats.forEach(c => {
-    sub.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+    const opt = document.createElement("option");
+    opt.value = c.id;
+    opt.textContent = c.name;
+    sub.appendChild(opt);
   });
 }
 

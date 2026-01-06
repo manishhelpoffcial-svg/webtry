@@ -239,7 +239,7 @@ function getNextId(data) {
 async function del(id) {
   if (!confirm("Remove this item?")) return;
   try {
-    const response = await fetch(`/api/works/${id}`, { method: 'DELETE' });
+    const response = await fetch(`/api/works/${encodeURIComponent(id)}`, { method: 'DELETE' });
     if (response.ok) {
       // Also update local fallback
       const localData = JSON.parse(localStorage.getItem('grafx_works_fallback') || '[]');
@@ -265,7 +265,7 @@ async function editWork(id) {
   const updatedWork = { ...work, image: newImg.trim() };
 
   try {
-    const res = await fetch(`/api/works/${id}`, {
+    const res = await fetch(`/api/works/${encodeURIComponent(id)}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updatedWork)
@@ -325,8 +325,8 @@ async function render() {
         <small>${catName} ${subName ? '/ ' + subName : ''}</small>
       </div>
       <div style="display:flex; gap:10px; margin-left:auto;">
-        <button class="btn-edit" style="background:#10b981; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;" onclick="editWork('${w.id}')"><i class="fa-solid fa-pen"></i> Edit</button>
-        <button class="btn-delete" onclick="del('${w.id}')"><i class="fa-solid fa-trash"></i> Delete</button>
+        <button class="btn-edit" style="background:#10b981; color:white; border:none; padding:5px 10px; border-radius:12px; cursor:pointer; font-size:12px;" onclick="editWork('${w.id}')"><i class="fa-solid fa-pen"></i> Edit</button>
+        <button class="btn-delete" style="background:#ef4444; color:white; border:none; padding:5px 10px; border-radius:12px; cursor:pointer; font-size:12px;" onclick="del('${w.id}')"><i class="fa-solid fa-trash"></i> Delete</button>
       </div>
     `;
     list.appendChild(d);

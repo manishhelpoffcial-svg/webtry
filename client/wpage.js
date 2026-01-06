@@ -17,8 +17,8 @@ async function init() {
     
     // De-duplicate works by ID
     const workMap = new Map();
-    dbWorks.forEach(w => workMap.set(w.id, w));
-    localWorks.forEach(w => workMap.set(w.id, w));
+    dbWorks.forEach(w => workMap.set(String(w.id), w));
+    localWorks.forEach(w => workMap.set(String(w.id), w));
     
     allWorks = Array.from(workMap.values());
     categories = dbCats;

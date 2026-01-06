@@ -139,10 +139,12 @@ async function save() {
   const img = document.getElementById("img");
   const cat = document.getElementById("cat");
   const subcat = document.getElementById("subcat");
+  const idField = document.getElementById("workId");
 
   if (!img.value || !cat.value) return alert("Please fill media link and category");
 
   const work = {
+    id: idField.value,
     category_id: parseInt(cat.value),
     subcategory_id: subcat.value ? parseInt(subcat.value) : null,
     image: img.value.trim()
@@ -191,6 +193,12 @@ async function render() {
   list.innerHTML = "";
   const data = await getData();
   
+  // Update Project ID field for next upload
+  const idField = document.getElementById('workId');
+  if (idField) {
+    idField.value = getNextId(data);
+  }
+
   if (data.length === 0) {
     list.innerHTML = "<p style='padding: 20px; text-align: center; color: #64748b;'>No items in portfolio.</p>";
     return;

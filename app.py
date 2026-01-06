@@ -129,7 +129,19 @@ def delete_category(id):
     if not session.get('logged_in'):
         return jsonify({"status": "error", "message": "Unauthorized"}), 401
     try:
+        # Delete the category
         supabase.table('categories').delete().eq("id", id).execute()
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/api/categories/<id>', methods=['PUT'])
+def update_category(id):
+    if not session.get('logged_in'):
+        return jsonify({"status": "error", "message": "Unauthorized"}), 401
+    data = request.json
+    try:
+        supabase.table('categories').update({"name": data.get('name')}).eq("id", id).execute()
         return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500

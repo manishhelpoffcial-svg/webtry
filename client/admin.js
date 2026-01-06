@@ -33,6 +33,8 @@ function updateSubCats() {
   if (!sub) return;
   sub.innerHTML = '<option value="">Select Sub-Category</option>';
   
+  if (!catId) return;
+
   const subCats = categories.filter(c => String(c.parent_id) === String(catId));
   subCats.forEach(c => {
     sub.innerHTML += `<option value="${c.id}">${c.name}</option>`;
@@ -40,18 +42,25 @@ function updateSubCats() {
 }
 
 async function addCategory() {
-  const name = document.getElementById('newCatName').value;
+  const name = document.getElementById('newCatName').value.trim();
   const parent_id = document.getElementById('parentCatSelect').value || null;
   if (!name) return alert("Enter name");
 
-  const res = await fetch('/api/categories', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, parent_id })
-  });
-  if (res.ok) {
-    document.getElementById('newCatName').value = "";
-    fetchCategories();
+  try {
+    const res = await fetch('/api/categories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, parent_id })
+    });
+    if (res.ok) {
+      document.getElementById('newCatName').value = "";
+      fetchCategories();
+    } else {
+      const err = await res.json();
+      alert("Error: " + err.message);
+    }
+  } catch (e) {
+    alert("Request failed");
   }
 }
 
@@ -60,14 +69,47 @@ function renderCategories() {
   if (!list) return;
   list.innerHTML = "";
   categories.forEach(c => {
-    const chip = document.createElement('span');
+    const chip = document.createElement('div');
     chip.className = "category-chip";
-    chip.style = "background: #e2e8f0; padding: 5px 12px; border-radius: 999px; font-size: 12px; display: flex; align-items: center; gap: 8px; border: 1px solid #cbd5e1;";
+    chip.style = "background: white; padding: 8px 15px; border-radius: 12px; font-size: 13px; display: flex; align-items: center; gap: 10px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);";
     
     const icon = getCategoryIcon(c.name);
-    chip.innerHTML = `${icon} ${c.name} ${c.parent_id ? '<small style="opacity:0.6">(sub)</small>' : ''} <i class="fa-solid fa-xmark" style="cursor:pointer; color:#ef4444" onclick="deleteCategory(${c.id})"></i>`;
+    const isSub = c.parent_id;
+    const parentName = isSub ? (categories.find(p => p.id == c.parent_id)?.name || 'Parent') : '';
+    
+    chip.innerHTML = `
+      ${icon} 
+      <div style="display:flex; flex-direction:column;">
+        <span style="font-weight:600; color:#1e293b;">${c.name}</span>
+        ${isSub ? `<small style="color:#64748b; font-size:10px;">Sub of ${parentName}</small>` : '<small style="color:#10b981; font-size:10px;">Main Category</small>'}
+      </div>
+      <div style="margin-left:auto; display:flex; gap:8px;">
+        <i class="fa-solid fa-pen" style="cursor:pointer; color:#10b981" onclick="editCategory(${c.id}, '${c.name.replace(/'/g, "\\'")}')" title="Edit Name"></i>
+        <i class="fa-solid fa-trash" style="cursor:pointer; color:#ef4444" onclick="deleteCategory(${c.id})" title="Delete"></i>
+      </div>
+    `;
     list.appendChild(chip);
   });
+}
+
+async function editCategory(id, currentName) {
+  const newName = prompt("Enter new name for category:", currentName);
+  if (!newName || newName.trim() === currentName) return;
+  
+  try {
+    const res = await fetch(`/api/categories/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: newName.trim() })
+    });
+    if (res.ok) {
+      fetchCategories();
+    } else {
+      alert("Failed to update name");
+    }
+  } catch (e) {
+    alert("Error updating category");
+  }
 }
 
 function getCategoryIcon(name) {
@@ -98,24 +140,33 @@ async function save() {
   const cat = document.getElementById("cat");
   const subcat = document.getElementById("subcat");
 
-  if (!img.value || !cat.value) return alert("Please fill fields");
+  if (!img.value || !cat.value) return alert("Please fill media link and category");
 
   const work = {
-    category_id: cat.value,
-    subcategory_id: subcat.value || null,
-    image: img.value
+    category_id: parseInt(cat.value),
+    subcategory_id: subcat.value ? parseInt(subcat.value) : null,
+    image: img.value.trim()
   };
 
-  const res = await fetch('/api/works', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(work)
-  });
+  try {
+    const res = await fetch('/api/works', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(work)
+    });
 
-  if (res.ok) {
-    img.value = cat.value = subcat.value = "";
-    render();
-    alert("Work published!");
+    if (res.ok) {
+      img.value = "";
+      cat.value = "";
+      subcat.value = "";
+      render();
+      alert("Work published successfully!");
+    } else {
+      const err = await res.json();
+      alert("Error publishing: " + (err.message || "Unknown error"));
+    }
+  } catch (e) {
+    alert("Failed to connect to server");
   }
 }
 

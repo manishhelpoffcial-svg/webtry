@@ -34,10 +34,10 @@ function renderCategoryBar() {
     html += `<button id="cat-${c.id}" onclick="filter(${c.id})">${icon} ${c.name}</button>`;
   });
   
-  // If still empty (e.g. Supabase loading), provide the core 2 without (Fallback) text
+  // If still empty (e.g. Supabase loading), provide the core 2
   if (mainCats.length === 0) {
-    html += `<button onclick="filter('graphic_design')"><i class="fa-solid fa-palette"></i> Graphic Design</button>`;
-    html += `<button onclick="filter('video_editing')"><i class="fa-solid fa-video"></i> Video Editing</button>`;
+    html += `<button id="cat-graphic_design" onclick="filter('graphic_design')"><i class="fa-solid fa-palette"></i> Graphic Design</button>`;
+    html += `<button id="cat-video_editing" onclick="filter('video_editing')"><i class="fa-solid fa-video"></i> Video Editing</button>`;
   }
   
   bar.innerHTML = html;

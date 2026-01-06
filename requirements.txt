@@ -8,3 +8,5 @@ flask
 flask-cors
 python-dotenv
 supabase
+flask-cors
+supabase

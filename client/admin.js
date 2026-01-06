@@ -208,7 +208,7 @@ async function render() {
     const d = document.createElement("div");
     d.className = "item";
     let preview = "";
-    const isVideo = w.image.includes("youtube.com") || w.image.includes("youtu.be") || w.image.includes("dropbox.com") && w.image.includes("raw=1");
+    const isVideo = w.image && (w.image.includes("youtube.com") || w.image.includes("youtu.be") || (w.image.includes("dropbox.com") && w.image.includes("raw=1")));
     
     if (isVideo) {
       preview = '<i class="fa-solid fa-video" style="font-size: 30px; color: #10b981; width: 60px; text-align: center;"></i>';
@@ -225,15 +225,11 @@ async function render() {
         <b>${w.id}</b>
         <small>${catName} ${subName ? '/ ' + subName : ''}</small>
       </div>
-      <button class="btn-delete" onclick="del(${w.id})"><i class="fa-solid fa-trash"></i> Delete</button>
+      <button class="btn-delete" onclick="del('${w.id}')"><i class="fa-solid fa-trash"></i> Delete</button>
     `;
     list.appendChild(d);
   });
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-  fetchCategories().then(() => render());
-});
 
 async function renderInquiries() {
   const inquiryList = document.getElementById('inquiryList');
@@ -287,25 +283,7 @@ async function delInquiry(id) {
   }
 }
 
-function updateSubCats() {
-  const cat = document.getElementById("cat").value;
-  const sub = document.getElementById("subcat");
-  if (!sub) return;
-  sub.innerHTML = '<option value="">Select Sub-Category</option>';
-  const options = {
-    graphic_design: ["Logo Design", "Social Media", "Branding", "UI/UX"],
-    video_editing: ["Reels/Shorts", "YouTube Videos", "Commercials", "Documentary"]
-  };
-  if (options[cat]) {
-    options[cat].forEach(o => {
-      const opt = document.createElement("option");
-      opt.value = o.toLowerCase().replace(/\s/g, "_");
-      opt.innerText = o;
-      sub.appendChild(opt);
-    });
-  }
-}
-
 document.addEventListener('DOMContentLoaded', () => {
   fetchCategories().then(() => render());
 });
+

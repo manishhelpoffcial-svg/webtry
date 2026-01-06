@@ -61,10 +61,25 @@ function renderCategories() {
   list.innerHTML = "";
   categories.forEach(c => {
     const chip = document.createElement('span');
-    chip.style = "background: #e2e8f0; padding: 5px 12px; border-radius: 999px; font-size: 12px; display: flex; align-items: center; gap: 8px;";
-    chip.innerHTML = `${c.name} ${c.parent_id ? '<small>(sub)</small>' : ''} <i class="fa-solid fa-xmark" style="cursor:pointer" onclick="deleteCategory(${c.id})"></i>`;
+    chip.className = "category-chip";
+    chip.style = "background: #e2e8f0; padding: 5px 12px; border-radius: 999px; font-size: 12px; display: flex; align-items: center; gap: 8px; border: 1px solid #cbd5e1;";
+    
+    const icon = getCategoryIcon(c.name);
+    chip.innerHTML = `${icon} ${c.name} ${c.parent_id ? '<small style="opacity:0.6">(sub)</small>' : ''} <i class="fa-solid fa-xmark" style="cursor:pointer; color:#ef4444" onclick="deleteCategory(${c.id})"></i>`;
     list.appendChild(chip);
   });
+}
+
+function getCategoryIcon(name) {
+  const lower = name.toLowerCase();
+  if (lower.includes('graphic')) return '<i class="fa-solid fa-palette"></i>';
+  if (lower.includes('video')) return '<i class="fa-solid fa-video"></i>';
+  if (lower.includes('logo')) return '<i class="fa-solid fa-pen-nib"></i>';
+  if (lower.includes('poster')) return '<i class="fa-solid fa-image"></i>';
+  if (lower.includes('card')) return '<i class="fa-solid fa-address-card"></i>';
+  if (lower.includes('thumbnail')) return '<i class="fa-solid fa-clapperboard"></i>';
+  if (lower.includes('wedding')) return '<i class="fa-solid fa-heart"></i>';
+  return '<i class="fa-solid fa-tag"></i>';
 }
 
 async function deleteCategory(id) {

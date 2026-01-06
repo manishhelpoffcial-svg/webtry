@@ -6,9 +6,36 @@ async function fetchCategories() {
   try {
     const res = await fetch('/api/categories');
     categories = await res.json();
+    
+    // Fallback if DB is empty or fails
+    if (!categories || categories.length === 0) {
+      console.log("Using fallback categories for admin");
+      categories = [
+        { id: 'graphic_design', name: 'Graphics Design', parent_id: null },
+        { id: 'video_editing', name: 'Video Editing', parent_id: null },
+        { id: 'poster', name: 'Poster', parent_id: 'graphic_design' },
+        { id: 'logo', name: 'Logo', parent_id: 'graphic_design' },
+        { id: 'menu_card', name: 'Menu Card', parent_id: 'graphic_design' },
+        { id: 'business_card', name: 'Business Card', parent_id: 'graphic_design' },
+        { id: 'thumbnail', name: 'Thumbnail', parent_id: 'graphic_design' },
+        { id: 'short_video', name: 'Short Video', parent_id: 'video_editing' },
+        { id: 'long_video', name: 'Long Video', parent_id: 'video_editing' },
+        { id: 'wedding_video', name: 'Wedding Video', parent_id: 'video_editing' }
+      ];
+    }
+    
     updateCategorySelects();
     renderCategories();
-  } catch (e) { console.error("Cat fetch failed", e); }
+  } catch (e) { 
+    console.error("Cat fetch failed", e);
+    // Hard fallback on error
+    categories = [
+        { id: 'graphic_design', name: 'Graphics Design', parent_id: null },
+        { id: 'video_editing', name: 'Video Editing', parent_id: null }
+    ];
+    updateCategorySelects();
+    renderCategories();
+  }
 }
 
 function updateCategorySelects() {

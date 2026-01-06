@@ -108,6 +108,7 @@ def get_categories():
         response = supabase.table('categories').select("*").order("name").execute()
         return jsonify(response.data)
     except Exception as e:
+        print(f"Supabase Error: {e}")
         return jsonify([])
 
 @app.route('/api/categories', methods=['POST'])

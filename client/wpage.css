@@ -330,15 +330,19 @@ nav{
   font-size: 14px;
 }
 
-.subcategory-bar button.active {
-  background: var(--emerald);
-  color: white;
-  border-color: var(--emerald);
-  box-shadow: var(--shadow-sm);
+.category-bar button i {
+  margin-right: 8px;
+  color: #10b981;
 }
 
-.category-bar button i {
-  margin-right: 6px;
+.category-bar button.active i {
+  color: white !important;
+}
+
+.category-bar button.active {
+  background: var(--emerald) !important;
+  color: white !important;
+  border-color: var(--emerald) !important;
 }
 
 .portfolio-header h1 span {

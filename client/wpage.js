@@ -27,35 +27,34 @@ function renderCategoryBar() {
   if (!bar) return;
   const mainCats = categories.filter(c => !c.parent_id);
   
-  // LOG FOR DEBUGGING
-  console.log("Categories loaded:", categories);
-  console.log("Main Categories:", mainCats);
-
   let html = `<button id="cat-all" class="active" onclick="filter('all')"><i class="fa-solid fa-border-all"></i> All</button>`;
   
+  mainCats.forEach(c => {
+    const icon = getCategoryIcon(c.name);
+    html += `<button id="cat-${c.id}" onclick="filter(${c.id})">${icon} ${c.name}</button>`;
+  });
+  
+  // If still empty (e.g. Supabase loading), provide the core 2 without (Fallback) text
   if (mainCats.length === 0) {
-    // Fallback if no categories in DB yet
-    html += `<button onclick="filter('graphic_design')"><i class="fa-solid fa-palette"></i> Graphic Design (Fallback)</button>`;
-    html += `<button onclick="filter('video_editing')"><i class="fa-solid fa-video"></i> Video Editing (Fallback)</button>`;
-  } else {
-    mainCats.forEach(c => {
-      const icon = getCategoryIcon(c.name);
-      html += `<button id="cat-${c.id}" onclick="filter(${c.id})">${icon} ${c.name}</button>`;
-    });
+    html += `<button onclick="filter('graphic_design')"><i class="fa-solid fa-palette"></i> Graphic Design</button>`;
+    html += `<button onclick="filter('video_editing')"><i class="fa-solid fa-video"></i> Video Editing</button>`;
   }
+  
   bar.innerHTML = html;
 }
 
 function getCategoryIcon(name) {
   const lower = name.toLowerCase();
-  if (lower.includes('graphic')) return '<i class="fa-solid fa-palette"></i>';
-  if (lower.includes('video')) return '<i class="fa-solid fa-video"></i>';
-  if (lower.includes('logo')) return '<i class="fa-solid fa-pen-nib"></i>';
-  if (lower.includes('poster')) return '<i class="fa-solid fa-image"></i>';
-  if (lower.includes('card')) return '<i class="fa-solid fa-address-card"></i>';
-  if (lower.includes('thumbnail')) return '<i class="fa-solid fa-clapperboard"></i>';
-  if (lower.includes('wedding')) return '<i class="fa-solid fa-heart"></i>';
-  return '<i class="fa-solid fa-tag"></i>';
+  let iconClass = 'fa-tag';
+  if (lower.includes('graphic')) iconClass = 'fa-palette';
+  else if (lower.includes('video')) iconClass = 'fa-video';
+  else if (lower.includes('logo')) iconClass = 'fa-pen-nib';
+  else if (lower.includes('poster')) iconClass = 'fa-image';
+  else if (lower.includes('card')) iconClass = 'fa-address-card';
+  else if (lower.includes('thumbnail')) iconClass = 'fa-clapperboard';
+  else if (lower.includes('wedding')) iconClass = 'fa-heart';
+  
+  return `<i class="fa-solid ${iconClass}" style="color: #10b981;"></i>`;
 }
 
 function filter(catId) {

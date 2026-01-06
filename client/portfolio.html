@@ -1,0 +1,248 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creator Portfolio</title>  <!-- Font Awesome -->  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />  <!-- Swiper (Carousel) -->  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />  <style>
+    :root {
+      --bg: #0b0b12;
+      --card: #141423;
+      --purple: #8b5cf6;
+      --purple-glow: rgba(139, 92, 246, 0.6);
+      --text: #e5e7eb;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #140a2a, var(--bg));
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ================= HERO ================= */
+    .hero {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .logo-wrapper {
+      position: relative;
+      cursor: pointer;
+      transition: all 0.8s ease;
+    }
+
+    .creator-logo {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: url('DROPBOX_LOGO_LINK') center/cover no-repeat;
+      box-shadow: 0 0 40px var(--purple-glow);
+      transition: all 0.8s ease;
+    }
+
+    .logo-wrapper.active {
+      transform: translateX(-220px) scale(0.6);
+    }
+
+    .info-card {
+      position: absolute;
+      left: 220px;
+      top: 50%;
+      transform: translateY(-50%) scale(0.8);
+      width: 300px;
+      background: linear-gradient(145deg, #1b103a, var(--card));
+      border-radius: 20px;
+      padding: 25px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.8s ease;
+      box-shadow: 0 0 30px rgba(0,0,0,0.6);
+    }
+
+    .logo-wrapper.active .info-card {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(-50%) scale(1);
+    }
+
+    .info-card h2 {
+      margin-bottom: 10px;
+      color: var(--purple);
+    }
+
+    .info-card p {
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .socials {
+      display: flex;
+      gap: 15px;
+    }
+
+    .socials a {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--card);
+      color: white;
+      font-size: 20px;
+      transition: 0.3s;
+      box-shadow: 0 0 15px rgba(0,0,0,0.4);
+    }
+
+    .socials a:hover {
+      background: var(--purple);
+      box-shadow: 0 0 20px var(--purple-glow);
+      transform: translateY(-4px);
+    }
+
+    /* ================= SECTION ================= */
+    section {
+      padding: 80px 6%;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 28px;
+      color: var(--purple);
+    }
+
+    /* ================= THUMBNAILS ================= */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: 1s ease;
+    }
+
+    .fade-in.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .swiper {
+      width: 100%;
+      padding-bottom: 40px;
+    }
+
+    .swiper-slide img {
+      width: 100%;
+      border-radius: 15px;
+      box-shadow: 0 0 25px rgba(0,0,0,0.6);
+    }
+
+    /* ================= CIRCLE LOGOS ================= */
+    .circle-logos {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 25px;
+      margin-top: 40px;
+    }
+
+    .circle-logos img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--purple);
+      box-shadow: 0 0 20px var(--purple-glow);
+      transition: 0.4s;
+    }
+
+    .circle-logos img:hover {
+      transform: scale(1.15);
+    }
+
+    /* ================= FOOTER ================= */
+    footer {
+      padding: 30px;
+      text-align: center;
+      background: #090910;
+      color: #9ca3af;
+      font-size: 14px;
+    }
+  </style></head>
+<body>  <!-- HERO -->  <div class="hero">
+    <div class="logo-wrapper" id="logoWrap">
+      <div class="creator-logo"></div>
+      <div class="info-card">
+        <h2>Hai</h2>
+        <p>Content Creator • Gaming • Tech
+        <br>Welcome to my portfolio.</p>
+        <div class="socials">
+          <a href="#"><i class="fab fa-youtube"></i></a>
+          <a href="#"><i class="fab fa-discord"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>  <!-- THUMBNAILS -->  <section>
+    <h2 class="section-title">Thumbnails</h2>
+    <div class="swiper fade-in">
+      <div class="swiper-wrapper">
+        <div class="swiper-slide"><img src="DROPBOX_THUMB_1"></div>
+        <div class="swiper-slide"><img src="DROPBOX_THUMB_2"></div>
+        <div class="swiper-slide"><img src="DROPBOX_THUMB_3"></div>
+      </div>
+    </div><!-- LOGOS -->
+<div class="circle-logos fade-in">
+  <img src="DROPBOX_LOGO_1">
+  <img src="DROPBOX_LOGO_2">
+  <img src="DROPBOX_LOGO_3">
+  <img src="DROPBOX_LOGO_4">
+</div>
+
+  </section>  <!-- BANNERS -->  <section>
+    <h2 class="section-title">Channel Banners</h2>
+    <div class="swiper fade-in">
+      <div class="swiper-wrapper">
+        <div class="swiper-slide"><img src="DROPBOX_BANNER_1"></div>
+        <div class="swiper-slide"><img src="DROPBOX_BANNER_2"></div>
+        <div class="swiper-slide"><img src="DROPBOX_BANNER_3"></div>
+      </div>
+    </div>
+  </section>  <footer>
+    © 2025 Hai • Black & Purple Portfolio
+  </footer>  <!-- Scripts -->  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>  <script>
+    // Logo click animation
+    document.getElementById('logoWrap').addEventListener('click', () => {
+      document.getElementById('logoWrap').classList.toggle('active');
+    });
+
+    // Swiper
+    new Swiper('.swiper', {
+      slidesPerView: 1.2,
+      spaceBetween: 20,
+      loop: true,
+      autoplay: { delay: 2500 },
+      breakpoints: {
+        768: { slidesPerView: 2.5 },
+        1024: { slidesPerView: 3.5 }
+      }
+    });
+
+    // Scroll fade-in
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('show');
+        }
+      });
+    }, { threshold: 0.2 });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  </script></body>
+</html>

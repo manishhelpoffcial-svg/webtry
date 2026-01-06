@@ -1,0 +1,184 @@
+:root{
+  /* BASE */
+  --white:#ffffff;
+  --black:#0a0a0a;
+  --gray:#f6f7f8;
+
+  /* EMERALD */
+  --emerald:#10b981;
+  --emerald-soft:rgba(16,185,129,.14);
+  --emerald-dark:#059669;
+
+  /* TEXT */
+  --text-main:#0a0a0a;
+  --text-muted:#6b7280;
+
+  /* UI */
+  --border:rgba(0,0,0,.08);
+  --glass:rgba(255,255,255,.8);
+
+  --radius:14px;
+  --radius-lg:22px;
+
+  --shadow-sm:0 6px 18px rgba(0,0,0,.08);
+  --shadow-lg:0 20px 48px rgba(0,0,0,.16);
+
+  --glow:0 0 16px rgba(16,185,129,.35);
+  --gradient:linear-gradient(135deg,#10b981,#059669);
+}
+
+/* RESET */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Inter',sans-serif;
+}
+
+a{ text-decoration:none; color:inherit; }
+
+body{
+  background:var(--gray);
+  color:var(--text-main);
+}
+
+/* NAVBAR (INHERITED FROM STYLE.CSS) */
+.navbar, .nav-links, .nav-link, .logo-wrap, .logo-img, .logo-text {
+  /* No overrides needed, just let style.css handle it */
+}
+
+/* Fix for spacing if needed */
+.navbar {
+  margin-bottom: 0;
+}
+
+/* Remove old mobile menu and duplicated navbar styles from ct.css */
+.navbar, .logo-wrap, .logo-img, .logo-text, .menu-icon, .mobile-menu {
+  /* These are now managed by style.css or are hidden */
+}
+
+/* ================= */
+/* BLUR EFFECT */
+/* ================= */
+
+#pageContent{
+  transition:filter .3s ease, opacity .3s ease;
+}
+
+#pageContent.blurred{
+  filter:blur(6px);
+  opacity:.55;
+  pointer-events:none;
+}
+
+/* ===== */
+/* HERO */
+/* ===== */
+
+.contact-hero{
+  padding:56px 20px 24px;
+  text-align:center;
+}
+
+.contact-hero h1{
+  font-size:30px;
+  font-weight:700;
+}
+
+.contact-hero span{
+  color:var(--emerald);
+}
+
+.contact-hero p{
+  margin-top:10px;
+  font-size:15px;
+  color:var(--text-muted);
+  line-height:1.6;
+}
+
+/* ===== */
+/* CONTACT CARD */
+/* ===== */
+
+.contact-card{
+  margin:32px 18px;
+  padding:26px;
+
+  background:#ffffff;
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-lg);
+}
+
+/* INFO ROW */
+.info-box{
+  display:flex;
+  align-items:flex-start;
+  gap:16px;
+
+  padding:14px 0;
+  border-bottom:1px solid var(--border);
+}
+
+.info-box:hover {
+  background: var(--emerald-soft);
+  border-radius: var(--radius);
+  padding-left: 10px;
+}
+
+.info-box i{
+  font-size:20px;
+  color:var(--emerald);
+}
+
+.info-box h3{
+  font-size:14.5px;
+  font-weight:600;
+}
+
+.info-box p{
+  margin-top:2px;
+  font-size:14px;
+  color:var(--text-muted);
+}
+
+/* ===== */
+/* DISCORD BUTTON */
+/* ===== */
+
+.discord-contact{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+
+  margin-top:22px;
+  padding:13px;
+
+  background:var(--gradient);
+  color:#ffffff;
+  font-weight:600;
+
+  border-radius:999px;
+  box-shadow:var(--glow);
+  transition:.25s ease;
+}
+
+.discord-contact:hover{
+  transform:translateY(-2px);
+}
+
+/* ===== */
+/* FOOTER */
+/* ===== */
+
+.footer{
+  text-align:center;
+  padding:28px 0 40px;
+  font-size:13.5px;
+  color:var(--text-muted);
+}
+
+/* MOBILE */
+@media(max-width:600px){
+  .contact-hero h1{ font-size:26px; }
+}

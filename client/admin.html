@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GrafxCore | Admin Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<div class="admin-container">
+  <header>
+    <h1><i class="fa-solid fa-shield-halved"></i> GrafxCore Admin</h1>
+    
+    <div class="quick-nav">
+      <a href="home"><i class="fa-solid fa-house"></i> Home</a>
+      <button id="navWorks" onclick="showSection('works')" class="active"><i class="fa-solid fa-briefcase"></i> Portfolio</button>
+      <button id="navInquiries" onclick="showSection('inquiries')"><i class="fa-solid fa-envelope"></i> Inquiries</button>
+      <a href="logout" class="logout-link"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- Portfolio Section -->
+    <div id="worksSection">
+      <div class="card">
+        <h2>Manage Categories</h2>
+        <div class="form-group">
+          <label>New Category Name</label>
+          <div style="display: flex; gap: 10px;">
+            <input id="newCatName" placeholder="e.g. Graphic Design">
+            <select id="parentCatSelect">
+              <option value="">Main Category</option>
+            </select>
+            <button class="primary" onclick="addCategory()" style="width: auto;">Add</button>
+          </div>
+        </div>
+        <div id="categoryList" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px;">
+          <!-- Categories chips -->
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Add New Work</h2>
+        <div class="form-group">
+          <label>Project ID</label>
+          <input id="id" placeholder="#GXC001" disabled>
+        </div>
+        
+        <div class="form-group">
+          <label>Category</label>
+          <select id="cat" onchange="updateSubCats()">
+            <option value="">Select Category</option>
+            <option value="graphic_design">Graphic Design</option>
+            <option value="video_editing">Video Editing</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Sub-Category</label>
+          <select id="subcat">
+            <option value="">Select Sub-Category</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Media Link (Dropbox/YouTube)</label>
+          <input id="img" placeholder="Paste URL here...">
+        </div>
+
+        <button class="primary" onclick="save()">Publish to Portfolio</button>
+      </div>
+
+      <div class="list-container">
+        <h3>Live Portfolio Items</h3>
+        <div id="list">
+          <!-- Loaded via JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Inquiries Section -->
+    <div id="inquiriesSection" style="display: none;">
+      <div class="list-container">
+        <h3>Client Messages</h3>
+        <div id="inquiryList">
+          <!-- Loaded via JS -->
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+function showSection(section) {
+  // Update nav UI
+  document.getElementById('navWorks').classList.toggle('active', section === 'works');
+  document.getElementById('navInquiries').classList.toggle('active', section === 'inquiries');
+  
+  // Show/Hide sections
+  document.getElementById('worksSection').style.display = section === 'works' ? 'block' : 'none';
+  document.getElementById('inquiriesSection').style.display = section === 'inquiries' ? 'block' : 'none';
+  
+  if (section === 'inquiries') renderInquiries();
+}
+</script>
+
+<script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+ErrorDocument 404 /index.html
+
+RewriteEngine On
+RewriteBase /
+
+# Redirect index.html to /home
+RewriteRule ^index\.html$ home [R=301,L]
+
+# Redirect about.html to /aboutus
+RewriteRule ^about\.html$ aboutus [R=301,L]
+
+# Redirect wpage.html to /portfolio
+RewriteRule ^wpage\.html$ portfolio [R=301,L]
+
+# Redirect ct.html to /contactus
+RewriteRule ^ct\.html$ contactus [R=301,L]
+
+# Internal rewrites for clean URLs
+RewriteRule ^home$ index.html [L]
+RewriteRule ^aboutus$ about.html [L]
+RewriteRule ^portfolio$ wpage.html [L]
+RewriteRule ^contactus$ ct.html [L]
+RewriteRule ^admin$ admin.html [L]
+RewriteRule ^login$ login.html [L]

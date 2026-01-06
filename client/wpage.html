@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Our Portfolio | GrafxCore - Graphic Design & Video Editing Work</title>
+<meta name="description" content="Explore the GrafxCore portfolio featuring our best work in video editing and graphic design. See how we help brands communicate through powerful visuals.">
+<link rel="icon" type="image/jpeg" href="favicon.jpg">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="wpage.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<header class="navbar">
+  <div class="logo-wrap">
+    <img src="assets/logo.jpg" class="logo-img">
+    <div class="logo-text" style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 19px; color: #0a0a0a;">Grafx<span style="color: #10b981;">Core</span></div>
+  </div>
+
+  <nav class="nav-links">
+    <a href="home" class="nav-link">Home</a>
+    <a href="aboutus" class="nav-link">About</a>
+    <a href="portfolio" class="nav-link active">Portfolio</a>
+    <a href="contactus" class="nav-link">Contact Us</a>
+  </nav>
+</header>
+
+<link rel="stylesheet" href="style.css">
+
+<nav id="menu">
+  <a onclick="filter('all')">All</a>
+  <a onclick="filter('graphic_design')">Graphic Design</a>
+  <a onclick="filter('video_editing')">Video Editing</a>
+</nav>
+
+<div class="portfolio-header" style="text-align: center; padding: 60px 20px; background: white; border-bottom: 1px solid var(--border); margin-top: 20px;">
+  <h1 style="font-size: 32px; margin-bottom: 15px; color: var(--text-main);">Our Creative <span>Portfolio</span></h1>
+  <p style="max-width: 600px; margin: 0 auto; color: var(--text-muted); line-height: 1.6;">A showcase of our best graphic designs, video edits, and visual stories crafted to elevate brands.</p>
+</div>
+
+<!-- CATEGORY BAR -->
+<div class="category-bar">
+  <button onclick="filter('all')"><i class="fa-solid fa-border-all"></i> All</button>
+  <button onclick="filter('graphic_design')"><i class="fa-solid fa-palette"></i> Graphic Design</button>
+  <button onclick="filter('video_editing')"><i class="fa-solid fa-video"></i> Video Editing</button>
+</div>
+
+<!-- SUB-CATEGORY BAR -->
+<div class="subcategory-bar" id="subcatBar" style="display:flex; gap:10px; justify-content:center; padding:10px; flex-wrap:wrap;">
+</div>
+
+<div id="content">
+  <div class="grid" id="grid"></div>
+</div>
+
+<!-- FOCUS VIEW -->
+<div class="focus" id="focus">
+  <div class="focus-box">
+    <div id="mediaContainer" style="width: 100%; border-radius: 12px; overflow: hidden; background: #000; position: relative;">
+      <!-- Video or Image injected here -->
+    </div>
+    <div id="focusDetails" style="margin-top: 15px; padding: 15px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+      <p style="font-size: 14px; color: #64748b; margin-bottom: 10px;">ID: <b id="focusId" style="color: #10b981;"></b></p>
+      <a id="focusWA" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: #25d366; color: white; padding: 12px; border-radius: 999px; text-decoration: none; font-weight: 600; font-size: 14px; transition: 0.3s;">
+        <i class="fa-brands fa-whatsapp"></i> Order on WhatsApp
+      </a>
+    </div>
+    <span onclick="closeFocus()" class="focus-close">×</span>
+  </div>
+</div>
+
+<script src="wpage.js"></script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | GrafxCore - Our Mission & Vision</title>
+    <meta name="description" content="Learn more about GrafxCore, a creative agency founded by passionate designers and editors. Our mission is to help brands stand out through digital excellence.">
+    <link rel="icon" type="image/jpeg" href="favicon.jpg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .about-hero {
+            padding: 80px 20px;
+            text-align: center;
+            background: white;
+        }
+        .about-hero h1 { font-size: 42px; margin-bottom: 20px; }
+        .about-hero h1 span { color: var(--emerald); }
+        .about-hero p { max-width: 700px; margin: 0 auto; font-size: 18px; color: var(--text-muted); line-height: 1.6; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 60px 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            text-align: center;
+            transition: 0.3s;
+        }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+        .stat-card i { font-size: 32px; color: var(--emerald); margin-bottom: 15px; }
+        .stat-card h3 { font-size: 28px; margin-bottom: 5px; }
+        .stat-card p { color: var(--text-muted); font-size: 14px; }
+
+        .mission-section {
+            padding: 80px 20px;
+            max-width: 900px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+        .mission-content h2 { font-size: 32px; margin-bottom: 20px; }
+        .mission-content p { color: var(--text-muted); line-height: 1.7; margin-bottom: 15px; }
+        .mission-image img { width: 100%; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); }
+
+        @media (max-width: 768px) {
+            .mission-section { grid-template-columns: 1fr; text-align: center; }
+            .about-hero h1 { font-size: 32px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo-wrap">
+            <img src="assets/logo.jpg" class="logo-img">
+            <div class="logo-text">Grafx<span>Core</span></div>
+        </div>
+        <nav class="nav-links">
+            <a href="home" class="nav-link">Home</a>
+            <a href="aboutus" class="nav-link active">About</a>
+            <a href="portfolio" class="nav-link">Portfolio</a>
+            <a href="contactus" class="nav-link">Contact Us</a>
+        </nav>
+    </header>
+
+    <section class="about-hero">
+        <h1>We Build <span>Digital Excellence</span></h1>
+        <p>GrafxCore is a premier creative agency dedicated to transforming brands through high-impact visual storytelling and strategic design.</p>
+    </section>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <i class="fa-solid fa-rocket"></i>
+            <h3>150+</h3>
+            <p>Projects Launched</p>
+        </div>
+        <div class="stat-card">
+            <i class="fa-solid fa-users"></i>
+            <h3>50+</h3>
+            <p>Happy Clients</p>
+        </div>
+        <div class="stat-card">
+            <i class="fa-solid fa-award"></i>
+            <h3>5+</h3>
+            <p>Years Experience</p>
+        </div>
+    </div>
+
+    <section class="mission-section">
+        <div class="mission-content">
+            <h2>Our <span>Mission</span></h2>
+            <p>Our mission is simple: to help brands stand out in an increasingly crowded digital landscape. We combine artistic flair with strategic thinking to deliver results that matter.</p>
+            <p>Whether it's a cinematic video edit or a brand-defining logo design, we pour our passion into every pixel and frame.</p>
+        </div>
+        <div class="mission-image">
+            <img src="assets/founders-story.jpg" alt="Our Work" style="width: 100%; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
+        </div>
+    </section>
+
+    <section class="founders-section" style="padding: 80px 20px; background: white; border-top: 1px solid var(--border);">
+        <div style="max-width: 900px; margin: 0 auto;">
+            <h2 style="font-size: 38px; margin-bottom: 50px; text-align: center; font-weight: 900; letter-spacing: -1px; color: var(--text-main);">About the <span style="color: var(--emerald);">Founders</span></h2>
+            
+            <div style="position: relative; padding-left: 40px; margin-bottom: 40px;">
+                <div style="position: absolute; left: 0; top: 5px; bottom: 5px; width: 4px; background: var(--emerald); border-radius: 2px;"></div>
+                
+                <div style="margin-bottom: 35px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                        <i class="fa-solid fa-user-tie" style="color: var(--emerald); font-size: 20px;"></i>
+                        <h3 style="margin: 0; font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">The Visionaries</h3>
+                    </div>
+                    <p style="font-size: 17px; font-weight: 800; color: var(--text-main); line-height: 1.7; margin: 0;">
+                        GrafxCore was founded by <strong>Manish</strong> and <strong>Naitik</strong>, two young and passionate creatives driven by a shared vision of building impactful visual experiences. At just 17+ years of age, we bring fresh ideas, modern design thinking, and strong technical skills to every project we work on.
+                    </p>
+                </div>
+
+                <div style="margin-bottom: 35px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                        <i class="fa-solid fa-briefcase" style="color: var(--emerald); font-size: 20px;"></i>
+                        <h3 style="margin: 0; font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">Expertise & Experience</h3>
+                    </div>
+                    <p style="font-size: 16px; font-weight: 700; color: var(--text-main); line-height: 1.7; margin: 0;">
+                        With hands-on knowledge in freelancing, graphic design, and video editing, we have worked on a wide range of creative projects, from branding designs and social media content to professional video edits. Our experience in the freelance world has helped us understand client needs, deadlines, and the importance of delivering high-quality results.
+                    </p>
+                </div>
+
+                <div>
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                        <i class="fa-solid fa-quote-left" style="color: var(--emerald); font-size: 20px;"></i>
+                        <h3 style="margin: 0; font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">Our Philosophy</h3>
+                    </div>
+                    <p style="font-size: 16px; font-weight: 700; color: var(--text-main); line-height: 1.7; margin: 0; font-style: italic;">
+                        At GrafxCore, we believe creativity has no age—only skill, dedication, and consistency. Our mission is to help brands, businesses, and individuals grow through powerful visuals, clean designs, and engaging storytelling.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>© 2026 GrafxCore</p>
+        <p>grafxcore@gmail.com</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

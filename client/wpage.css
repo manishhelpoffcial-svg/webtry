@@ -330,6 +330,22 @@ nav{
   font-size: 14px;
 }
 
+.subcategory-bar button i {
+  margin-right: 8px;
+  color: #10b981;
+}
+
+.subcategory-bar button.active i {
+  color: white !important;
+}
+
+.subcategory-bar button.active {
+  background: var(--emerald) !important;
+  color: white !important;
+  border-color: var(--emerald) !important;
+  box-shadow: var(--shadow-sm);
+}
+
 .category-bar button i {
   margin-right: 8px;
   color: #10b981;

@@ -17,33 +17,65 @@ async function init() {
 
 function renderCategoryBar() {
   const bar = document.querySelector('.category-bar');
+  if (!bar) return;
   const mainCats = categories.filter(c => !c.parent_id);
-  bar.innerHTML = '<button onclick="filter(\'all\')"><i class="fa-solid fa-border-all"></i> All</button>';
+  
+  let html = `<button id="cat-all" class="active" onclick="filter('all')"><i class="fa-solid fa-border-all"></i> All</button>`;
   mainCats.forEach(c => {
-    bar.innerHTML += `<button onclick="filter(${c.id})">${c.name}</button>`;
+    const icon = getCategoryIcon(c.name);
+    html += `<button id="cat-${c.id}" onclick="filter(${c.id})">${icon} ${c.name}</button>`;
   });
+  bar.innerHTML = html;
+}
+
+function getCategoryIcon(name) {
+  const lower = name.toLowerCase();
+  if (lower.includes('graphic')) return '<i class="fa-solid fa-palette"></i>';
+  if (lower.includes('video')) return '<i class="fa-solid fa-video"></i>';
+  if (lower.includes('logo')) return '<i class="fa-solid fa-pen-nib"></i>';
+  if (lower.includes('poster')) return '<i class="fa-solid fa-image"></i>';
+  if (lower.includes('card')) return '<i class="fa-solid fa-address-card"></i>';
+  if (lower.includes('thumbnail')) return '<i class="fa-solid fa-clapperboard"></i>';
+  if (lower.includes('wedding')) return '<i class="fa-solid fa-heart"></i>';
+  return '<i class="fa-solid fa-tag"></i>';
 }
 
 function filter(catId) {
   currentFilter = catId;
+  currentSubFilter = 'all';
+  
+  // Update Active Class
+  document.querySelectorAll('.category-bar button').forEach(btn => btn.classList.remove('active'));
+  const activeBtn = document.getElementById(`cat-${catId}`);
+  if (activeBtn) activeBtn.classList.add('active');
+
   const subBar = document.getElementById('subcatBar');
+  if (!subBar) return;
   subBar.innerHTML = "";
   
   if (catId !== 'all') {
-    const subCats = categories.filter(c => c.parent_id == catId);
+    const subCats = categories.filter(c => String(c.parent_id) === String(catId));
     if (subCats.length > 0) {
-      subBar.innerHTML = '<button onclick="filterSub(\'all\')" style="padding: 5px 15px; border-radius: 20px; border: 1px solid #ddd; background: #fff; cursor: pointer;">All Sub</button>';
+      subBar.style.display = 'flex';
+      let html = '<button id="sub-all" class="active" onclick="filterSub(\'all\')">All Sub</button>';
       subCats.forEach(s => {
-        subBar.innerHTML += `<button onclick="filterSub(${s.id})" style="padding: 5px 15px; border-radius: 20px; border: 1px solid #ddd; background: #fff; cursor: pointer;">${s.name}</button>`;
+        html += `<button id="sub-${s.id}" onclick="filterSub(${s.id})">${s.name}</button>`;
       });
+      subBar.innerHTML = html;
+    } else {
+      subBar.style.display = 'none';
     }
+  } else {
+    subBar.style.display = 'none';
   }
   renderGrid();
 }
 
-let currentSubFilter = 'all';
 function filterSub(subId) {
   currentSubFilter = subId;
+  document.querySelectorAll('.subcategory-bar button').forEach(btn => btn.classList.remove('active'));
+  const activeBtn = document.getElementById(`sub-${subId}`);
+  if (activeBtn) activeBtn.classList.add('active');
   renderGrid();
 }
 
@@ -64,7 +96,7 @@ function renderGrid() {
     card.className = 'card';
     card.onclick = () => openFocus(w);
     
-    const isVideo = w.image.includes("youtube.com") || w.image.includes("youtu.be") || (w.image.includes("dropbox.com") && w.image.includes("raw=1"));
+    const isVideo = w.image && (w.image.includes("youtube.com") || w.image.includes("youtu.be") || (w.image.includes("dropbox.com") && w.image.includes("raw=1")));
     
     if (isVideo) {
       card.innerHTML = `
@@ -74,7 +106,7 @@ function renderGrid() {
         </div>
       `;
     } else {
-      card.innerHTML = `<img src="${w.image}" style="width:100%; border-radius: 12px; display:block;">`;
+      card.innerHTML = `<img src="${w.image}" style="width:100%; border-radius: 12px; display:block;" onerror="this.src='https://placehold.co/400x300?text=Media+Error'">`;
     }
     grid.appendChild(card);
   });

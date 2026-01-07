@@ -263,22 +263,25 @@ async function deleteWork(id) {
 function openFocus(w) {
   const focus = document.getElementById('focus');
   const container = document.getElementById('mediaContainer');
-  const isYoutube = w.image.includes("youtube.com") || w.image.includes("youtu.be");
-  const isDirectVideo = w.image.includes("raw=1") || w.image.endsWith(".mp4");
+  const isVideo = isVideoLink(w.image);
 
-  if (isYoutube) {
-    let vidId = "";
-    if (w.image.includes("v=")) vidId = w.image.split("v=")[1].split("&")[0];
-    else if (w.image.includes("youtu.be/")) vidId = w.image.split("youtu.be/")[1].split("?")[0];
-    container.innerHTML = `<div style="padding-top: 56.25%; position:relative;"><iframe src="https://www.youtube.com/embed/${vidId}?autoplay=1" style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;" allow="autoplay; encrypted-media" allowfullscreen></iframe></div>`;
-  } else if (isDirectVideo) {
-    container.innerHTML = `<video src="${w.image}" controls autoplay style="width:100%; display:block; aspect-ratio: 16/9; object-fit: contain;"></video>`;
+  if (isVideo) {
+    const isYoutube = w.image.includes("youtube.com") || w.image.includes("youtu.be");
+    if (isYoutube) {
+      let vidId = "";
+      if (w.image.includes("v=")) vidId = w.image.split("v=")[1].split("&")[0];
+      else if (w.image.includes("youtu.be/")) vidId = w.image.split("youtu.be/")[1].split("?")[0];
+      container.innerHTML = `<div style="padding-top: 56.25%; position:relative;"><iframe src="https://www.youtube.com/embed/${vidId}?autoplay=1" style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;" allow="autoplay; encrypted-media" allowfullscreen></iframe></div>`;
+    } else {
+      // Direct video or Dropbox link with raw=1
+      container.innerHTML = `<video src="${w.image}" controls autoplay style="width:100%; display:block; aspect-ratio: 16/9; object-fit: contain;"></video>`;
+    }
   } else {
-    container.innerHTML = `<img src="${w.image}" style="width:100%; display:block;">`;
+    container.innerHTML = `<img src="${w.image}" style="width:100%; display:block; border-radius: 8px;">`;
   }
 
   document.getElementById('focusId').innerText = w.id;
-  document.getElementById('focusWA').href = `https://wa.me/91891819?text=Hi, I'm interested in project ${w.id}`;
+  document.getElementById('focusWA').href = `https://wa.me/9189181976222?text=Hi, I'm interested in project ${w.id}`;
   focus.style.display = "flex";
 }
 

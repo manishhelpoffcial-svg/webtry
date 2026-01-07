@@ -57,6 +57,7 @@ Preferred communication style: Simple, everyday language.
 - Google Fonts (Inter) - Typography
 
 ### Deployment Configurations
+- **Koyeb**: Configured with `Procfile` and `requirements.txt`.
 - **Vercel**: `client/vercel.json` with URL rewrites
 - **Firebase Hosting**: `client/firebase.json` with rewrites
 - **Render**: Configured for Flask app with gunicorn

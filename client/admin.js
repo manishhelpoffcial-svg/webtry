@@ -321,12 +321,33 @@ async function renderInquiries() {
     const inquiries = await response.json();
     inquiryList.innerHTML = "";
     inquiries.forEach((inq) => {
+      const date = new Date(inq.created_at).toLocaleString();
       const d = document.createElement("div");
       d.className = "item inquiry-card";
-      d.innerHTML = `<b>${inq.name}</b><br><small>${inq.message}</small><br><button class="btn-delete" onclick="delInquiry(${inq.id})">Delete</button>`;
+      d.style.flexDirection = "column";
+      d.style.alignItems = "flex-start";
+      d.style.padding = "15px";
+      d.innerHTML = `
+        <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:10px;">
+          <b style="color: #10b981; font-size: 16px;">${inq.name}</b>
+          <span style="font-size: 12px; color: #64748b;">${date}</span>
+        </div>
+        <div style="font-size: 13px; color: #475569; margin-bottom: 8px; display: flex; gap: 15px; flex-wrap: wrap;">
+          <span><i class="fa-solid fa-envelope" style="color:#10b981"></i> ${inq.email}</span>
+          <span><i class="fa-solid fa-wallet" style="color:#10b981"></i> Budget: ₹${inq.budget}</span>
+        </div>
+        <div style="background: #f8fafc; padding: 10px; border-radius: 8px; width: 100%; font-size: 14px; color: #1e293b; margin-bottom: 12px; border: 1px solid #e2e8f0;">
+          ${inq.message}
+        </div>
+        <button class="btn-delete" onclick="delInquiry(${inq.id})" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; display:flex; align-items:center; gap:5px;">
+          <i class="fa-solid fa-check"></i> Mark Resolved
+        </button>
+      `;
       inquiryList.appendChild(d);
     });
-  } catch (error) {}
+  } catch (error) {
+    console.error("Error loading inquiries:", error);
+  }
 }
 
 async function delInquiry(id) {

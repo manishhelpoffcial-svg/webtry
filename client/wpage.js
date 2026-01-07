@@ -144,6 +144,26 @@ function filterSub(subId) {
   renderGrid();
 }
 
+function isVideoLink(url) {
+  if (!url) return false;
+  const videoPatterns = [
+    'youtube.com',
+    'youtu.be',
+    'vimeo.com',
+    'drive.google.com/file',
+    '.mp4',
+    '.mov',
+    '.webm',
+    'raw=1'
+  ];
+  
+  const isVideo = videoPatterns.some(p => url.toLowerCase().includes(p));
+  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'];
+  const isImageExt = imageExtensions.some(ext => url.toLowerCase().split('?')[0].endsWith(ext));
+  
+  return isVideo && !isImageExt;
+}
+
 function renderGrid() {
   const grid = document.getElementById('grid');
   if (!grid) return;
@@ -182,7 +202,7 @@ function renderGrid() {
     card.className = 'card';
     card.style.position = 'relative';
     
-    const isVideo = w.image && (w.image.includes("youtube.com") || w.image.includes("youtu.be") || (w.image.includes("dropbox.com") && w.image.includes("raw=1")));
+    const isVideo = isVideoLink(w.image);
     
     let mediaHtml = "";
     if (isVideo) {

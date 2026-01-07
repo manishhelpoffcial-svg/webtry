@@ -253,6 +253,28 @@ async function editWork(id) {
   } catch (e) {}
 }
 
+function isVideoLink(url) {
+  if (!url) return false;
+  const videoPatterns = [
+    'youtube.com',
+    'youtu.be',
+    'vimeo.com',
+    'drive.google.com/file',
+    '.mp4',
+    '.mov',
+    '.webm',
+    'raw=1' // Special case for Dropbox video/direct links
+  ];
+  
+  const isVideo = videoPatterns.some(p => url.toLowerCase().includes(p));
+  
+  // Exclude common image extensions even if they have 'raw=1' or similar
+  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'];
+  const isImageExt = imageExtensions.some(ext => url.toLowerCase().split('?')[0].endsWith(ext));
+  
+  return isVideo && !isImageExt;
+}
+
 async function render() {
   const data = await getData();
   updateStats(data);
@@ -270,7 +292,7 @@ async function render() {
     const d = document.createElement("div");
     d.className = "item";
     let preview = "";
-    const isVideo = w.image && (w.image.includes("youtube.com") || w.image.includes("youtu.be") || (w.image.includes("dropbox.com") && w.image.includes("raw=1")));
+    const isVideo = isVideoLink(w.image);
     
     if (isVideo) {
       preview = '<i class="fa-solid fa-video" style="font-size: 24px; color: #10b981; width: 60px; text-align: center;"></i>';

@@ -145,11 +145,11 @@ async function getData() {
   try {
     const res = await fetch('/api/works');
     let dbData = await res.json();
-    const localData = JSON.parse(localStorage.getItem('grafx_works_fallback') || '[]');
+    const localWorks = JSON.parse(localStorage.getItem('grafx_works_fallback') || '[]');
     
     const workMap = new Map();
     dbData.forEach(w => workMap.set(String(w.id), w));
-    localData.forEach(w => workMap.set(String(w.id), w));
+    localWorks.forEach(w => workMap.set(String(w.id), w));
     
     return Array.from(workMap.values());
   } catch (e) {
@@ -185,7 +185,7 @@ async function save() {
   };
 
   try {
-    const res = await fetch('/api/works', {
+    await fetch('/api/works', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(work)
@@ -255,23 +255,10 @@ async function editWork(id) {
 
 function isVideoLink(url) {
   if (!url) return false;
-  const videoPatterns = [
-    'youtube.com',
-    'youtu.be',
-    'vimeo.com',
-    'drive.google.com/file',
-    '.mp4',
-    '.mov',
-    '.webm',
-    'raw=1' // Special case for Dropbox video/direct links
-  ];
-  
+  const videoPatterns = ['youtube.com', 'youtu.be', 'vimeo.com', 'drive.google.com/file', '.mp4', '.mov', '.webm', 'raw=1'];
   const isVideo = videoPatterns.some(p => url.toLowerCase().includes(p));
-  
-  // Exclude common image extensions even if they have 'raw=1' or similar
   const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'];
   const isImageExt = imageExtensions.some(ext => url.toLowerCase().split('?')[0].endsWith(ext));
-  
   return isVideo && !isImageExt;
 }
 
@@ -345,9 +332,7 @@ async function renderInquiries() {
       `;
       inquiryList.appendChild(d);
     });
-  } catch (error) {
-    console.error("Error loading inquiries:", error);
-  }
+  } catch (error) {}
 }
 
 async function delInquiry(id) {

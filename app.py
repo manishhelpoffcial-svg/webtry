@@ -8,7 +8,7 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 app.secret_key = "grafxcore_secret_key"
 
-# Path resolution for Render (root directory)
+# Path resolution
 DIRECTORY = "client"
 
 # Supabase Configuration
@@ -119,7 +119,7 @@ def add_category():
     try:
         supabase.table('categories').insert({
             "name": data.get('name'),
-            "parent_id": data.get('parent_id') # None for main category
+            "parent_id": data.get('parent_id')
         }).execute()
         return jsonify({"status": "success"}), 201
     except Exception as e:
@@ -130,7 +130,6 @@ def delete_category(id):
     if not session.get('logged_in'):
         return jsonify({"status": "error", "message": "Unauthorized"}), 401
     try:
-        # Delete the category
         supabase.table('categories').delete().eq("id", id).execute()
         return jsonify({"status": "success"})
     except Exception as e:
@@ -161,12 +160,9 @@ def add_work():
         return jsonify({"status": "error", "message": "Unauthorized"}), 401
     data = request.json
     try:
-        # Check if table exists or just try insert
         supabase.table('works').insert(data).execute()
         return jsonify({"status": "success"}), 201
     except Exception as e:
-        print(f"Supabase Works Error: {e}")
-        # Local fallback if Supabase table is missing/error
         return jsonify({"status": "success", "note": "Local fallback enabled"}), 201
 
 @app.route('/api/works/<id>', methods=['DELETE'])
@@ -192,8 +188,6 @@ def update_work(id):
         }).eq("id", id).execute()
         return jsonify({"status": "success"})
     except Exception as e:
-        print(f"Update Work Error: {e}")
-        # Always return success to allow local storage update to persist
         return jsonify({"status": "success", "note": "Local update only"})
 
 @app.route('/api/inquiries', methods=['POST', 'OPTIONS'])
@@ -203,7 +197,6 @@ def add_inquiry():
     data = request.json
     if not data:
         return jsonify({"status": "error", "message": "No data received"}), 400
-    
     try:
         supabase.table('inquiries').insert({
             "name": str(data.get('name', '')),
@@ -248,7 +241,6 @@ def static_files(path):
         if path == 'about.html': return redirect('/aboutus')
         if path == 'wpage.html': return redirect('/portfolio')
         return redirect('/' + path[:-5])
-    
     return send_from_directory(DIRECTORY, path)
 
 if __name__ == "__main__":

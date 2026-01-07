@@ -281,7 +281,7 @@ function openFocus(w) {
   }
 
   document.getElementById('focusId').innerText = w.id;
-  document.getElementById('focusWA').href = `https://wa.me/9189181976222?text=Hi, I'm interested in project ${w.id}`;
+  document.getElementById('focusWA').href = `https://wa.me/918918197622?text=Hi, I'm interested in project ${w.id}`;
   focus.style.display = "flex";
 }
 

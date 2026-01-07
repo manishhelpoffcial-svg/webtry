@@ -180,22 +180,59 @@ function renderGrid() {
   filtered.forEach(w => {
     const card = document.createElement('div');
     card.className = 'card';
-    card.onclick = () => openFocus(w);
+    card.style.position = 'relative';
     
     const isVideo = w.image && (w.image.includes("youtube.com") || w.image.includes("youtu.be") || (w.image.includes("dropbox.com") && w.image.includes("raw=1")));
     
+    let mediaHtml = "";
     if (isVideo) {
-      card.innerHTML = `
-        <div style="position:relative; padding-top: 56.25%; background: #000; border-radius: 12px; overflow: hidden;">
+      mediaHtml = `
+        <div onclick="openFocus(${JSON.stringify(w).replace(/"/g, '&quot;')})" style="position:relative; padding-top: 56.25%; background: #000; border-radius: 12px; overflow: hidden; cursor: pointer;">
           <i class="fa-solid fa-play" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:white; font-size: 30px; z-index: 2;"></i>
           <div style="position:absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3);"></div>
         </div>
       `;
     } else {
-      card.innerHTML = `<img src="${w.image}" style="width:100%; border-radius: 12px; display:block;" onerror="this.src='https://placehold.co/400x300?text=Media+Error'">`;
+      mediaHtml = `<img src="${w.image}" onclick="openFocus(${JSON.stringify(w).replace(/"/g, '&quot;')})" style="width:100%; border-radius: 12px; display:block; cursor: pointer;" onerror="this.src='https://placehold.co/400x300?text=Media+Error'">`;
     }
+
+    card.innerHTML = `
+        ${mediaHtml}
+        <button onclick="deleteWork('${w.id}')" style="position:absolute; top:10px; right:10px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+            <i class="fa-solid fa-trash-can" style="font-size: 14px;"></i>
+        </button>
+    `;
     grid.appendChild(card);
   });
+}
+
+async function deleteWork(id) {
+    if (!confirm('Are you sure you want to delete this project?')) return;
+    
+    try {
+        const res = await fetch(`/api/works/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+            // Update local state
+            allWorks = allWorks.filter(w => String(w.id) !== String(id));
+            
+            // Update fallback
+            const fallback = JSON.parse(localStorage.getItem('grafx_works_fallback') || '[]');
+            const newFallback = fallback.filter(w => String(w.id) !== String(id));
+            localStorage.setItem('grafx_works_fallback', JSON.stringify(newFallback));
+            
+            renderGrid();
+        } else {
+            alert('Failed to delete project');
+        }
+    } catch (e) {
+        console.error('Delete failed:', e);
+        // Fallback delete if API fails
+        allWorks = allWorks.filter(w => String(w.id) !== String(id));
+        const fallback = JSON.parse(localStorage.getItem('grafx_works_fallback') || '[]');
+        const newFallback = fallback.filter(w => String(w.id) !== String(id));
+        localStorage.setItem('grafx_works_fallback', JSON.stringify(newFallback));
+        renderGrid();
+    }
 }
 
 function openFocus(w) {

@@ -273,15 +273,21 @@ function openFocus(w) {
       else if (w.image.includes("youtu.be/")) vidId = w.image.split("youtu.be/")[1].split("?")[0];
       container.innerHTML = `<div style="padding-top: 56.25%; position:relative;"><iframe src="https://www.youtube.com/embed/${vidId}?autoplay=1" style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;" allow="autoplay; encrypted-media" allowfullscreen></iframe></div>`;
     } else {
-      // Direct video or Dropbox link with raw=1
       container.innerHTML = `<video src="${w.image}" controls autoplay style="width:100%; display:block; aspect-ratio: 16/9; object-fit: contain;"></video>`;
     }
   } else {
     container.innerHTML = `<img src="${w.image}" style="width:100%; display:block; border-radius: 8px;">`;
   }
 
-  document.getElementById('focusId').innerText = w.id;
-  document.getElementById('focusWA').href = `https://wa.me/918918197622?text=Hi, I'm interested in project ${w.id}`;
+  const focusId = document.getElementById('focusId');
+  if (focusId) focusId.innerText = w.id || "N/A";
+  
+  const focusWA = document.getElementById('focusWA');
+  if (focusWA) {
+    const message = encodeURIComponent(`Hi, I'm interested in project ${w.id || 'Unknown'}`);
+    focusWA.href = `https://wa.me/918918197622?text=${message}`;
+  }
+  
   focus.style.display = "flex";
 }
 

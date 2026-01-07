@@ -199,14 +199,17 @@ async function save() {
   const img = document.getElementById("img");
   const cat = document.getElementById("cat");
   const subcat = document.getElementById("subcat");
-  const idField = document.getElementById("workId");
 
-  if (!img.value || !cat.value) return alert("Please fill media link and category");
+  if (!img || !img.value || !cat || !cat.value) return alert("Please fill media link and category");
+
+  // Get current data to generate next ID
+  const data = await getData();
+  const nextId = getNextId(data);
 
   const work = {
-    id: idField.value,
+    id: nextId,
     category_id: cat.value,
-    subcategory_id: subcat.value || null,
+    subcategory_id: (subcat && subcat.value) || null,
     image: img.value.trim(),
     created_at: new Date().toISOString()
   };
@@ -219,13 +222,14 @@ async function save() {
     });
 
     if (res.ok) {
+      // Local backup in case DB has issues
       const localData = JSON.parse(localStorage.getItem('grafx_works_fallback') || '[]');
       localData.push(work);
       localStorage.setItem('grafx_works_fallback', JSON.stringify(localData));
 
       img.value = "";
       cat.value = "";
-      subcat.value = "";
+      if (subcat) subcat.value = "";
       render();
       alert("Work published successfully!");
     } else {

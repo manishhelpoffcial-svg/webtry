@@ -182,115 +182,25 @@ async function getData() {
   }
 }
 
-async function save() {
-  const img = document.getElementById("img");
-  const cat = document.getElementById("cat");
-  const subcat = document.getElementById("subcat");
-  const idField = document.getElementById("workId");
-
-  if (!img.value || !cat.value) return alert("Please fill media link and category");
-
-  const work = {
-    id: idField.value,
-    category_id: cat.value,
-    subcategory_id: subcat.value || null,
-    image: img.value.trim(),
-    created_at: new Date().toISOString()
-  };
-
-  try {
-    const res = await fetch('/api/works', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(work)
-    });
-
-    // If server accepts it (even with fallback note), we proceed
-    if (res.ok) {
-      // Local backup in case DB has issues
-      const localData = JSON.parse(localStorage.getItem('grafx_works_fallback') || '[]');
-      localData.push(work);
-      localStorage.setItem('grafx_works_fallback', JSON.stringify(localData));
-
-      img.value = "";
-      cat.value = "";
-      subcat.value = "";
-      render();
-      alert("Work published successfully!");
-    } else {
-      const err = await res.json();
-      alert("Error publishing: " + (err.message || "Unknown error"));
-    }
-  } catch (e) {
-    alert("Failed to connect to server");
-  }
-}
-
-function getNextId(data) {
-  if (!data || data.length === 0) return "#GXC001";
-  let maxNum = 0;
-  data.forEach(w => {
-    const num = parseInt(w.id.replace("#GXC", ""));
-    if (!isNaN(num) && num > maxNum) maxNum = num;
-  });
-  return "#GXC" + (maxNum + 1).toString().padStart(3, "0");
-}
-
-async function del(id) {
-  if (!confirm("Remove this item?")) return;
-  try {
-    const response = await fetch(`/api/works/${encodeURIComponent(id)}`, { method: 'DELETE' });
-    if (response.ok) {
-      // Also update local fallback
-      const localData = JSON.parse(localStorage.getItem('grafx_works_fallback') || '[]');
-      const filtered = localData.filter(w => w.id !== id);
-      localStorage.setItem('grafx_works_fallback', JSON.stringify(filtered));
-      render();
-    } else {
-      alert("Failed to delete from server");
-    }
-  } catch (e) {
-    alert("Error connecting to server");
-  }
-}
-
-async function editWork(id) {
-  const data = await getData();
-  const work = data.find(w => w.id === id);
-  if (!work) return;
-
-  const newImg = prompt("Edit Media Link:", work.image);
-  if (newImg === null) return;
-
-  const updatedWork = { ...work, image: newImg.trim() };
-
-  try {
-    const res = await fetch(`/api/works/${encodeURIComponent(id)}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updatedWork)
-    });
-
-    if (res.ok) {
-      const localData = JSON.parse(localStorage.getItem('grafx_works_fallback') || '[]');
-      const idx = localData.findIndex(w => w.id === id);
-      if (idx !== -1) {
-        localData[idx] = updatedWork;
-        localStorage.setItem('grafx_works_fallback', JSON.stringify(localData));
-      }
-      render();
-    } else {
-      alert("Failed to update work");
-    }
-  } catch (e) {
-    alert("Error updating work");
-  }
+function updateStats(data) {
+    const statWorks = document.getElementById('statWorks');
+    const statInquiries = document.getElementById('statInquiries');
+    if (statWorks) statWorks.innerText = data.length;
+    
+    fetch('/api/inquiries')
+      .then(r => r.json())
+      .then(inqs => {
+        if (statInquiries) statInquiries.innerText = inqs.length;
+      })
+      .catch(() => {});
 }
 
 async function render() {
   if (!list) return;
   list.innerHTML = "";
   const data = await getData();
+  
+  updateStats(data);
   
   // Update Project ID field for next upload
   const idField = document.getElementById('workId');

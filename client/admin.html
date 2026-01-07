@@ -13,7 +13,6 @@
 <div class="admin-container">
   <header>
     <h1><i class="fa-solid fa-shield-halved"></i> GrafxCore Admin</h1>
-    
     <div class="quick-nav">
       <a href="home"><i class="fa-solid fa-house"></i> Home</a>
       <button id="navWorks" onclick="showSection('works')" class="active"><i class="fa-solid fa-briefcase"></i> Portfolio</button>
@@ -22,62 +21,78 @@
     </div>
   </header>
 
+  <div class="stats-grid">
+    <div class="stat-card">
+      <i class="fa-solid fa-images"></i>
+      <div class="stat-info">
+        <b id="statWorks">0</b>
+        <span>Portfolio Items</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <i class="fa-solid fa-inbox"></i>
+      <div class="stat-info">
+        <b id="statInquiries">0</b>
+        <span>New Inquiries</span>
+      </div>
+    </div>
+  </div>
+
   <main>
     <!-- Portfolio Section -->
-    <div id="worksSection">
-      <div class="card">
-        <h2>Manage Categories</h2>
-        <div id="categoryManager">
+    <div id="worksSection" class="dashboard-layout">
+      <div class="main-col">
+        <div class="list-container card">
+          <h3>Live Portfolio Items</h3>
+          <div id="list">
+            <!-- Loaded via JS -->
+          </div>
+        </div>
+      </div>
+      
+      <div class="side-col">
+        <div class="card">
+          <h2>Add New Work</h2>
+          
           <div class="form-group">
-            <label>Add New Category/Sub-category</label>
-            <div style="display: flex; gap: 10px;">
-              <input id="newCatName" placeholder="e.g. Poster or Graphics Design">
-              <select id="parentCatSelect">
-                <option value="">Main Category</option>
-              </select>
-              <button class="primary" onclick="addCategory()" style="width: auto;">Add</button>
+            <label>Category</label>
+            <select id="cat" onchange="updateSubCats()">
+              <option value="">Select Category</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Sub-Category</label>
+            <select id="subcat">
+              <option value="">Select Sub-Category</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Media Link (Dropbox/YouTube)</label>
+            <input id="img" placeholder="Paste URL here...">
+          </div>
+
+          <button class="primary" onclick="save()">Publish to Portfolio</button>
+        </div>
+
+        <div class="card">
+          <h2>Manage Categories</h2>
+          <div id="categoryManager">
+            <div class="form-group">
+              <label>Add New Category</label>
+              <div style="display: flex; flex-direction: column; gap: 10px;">
+                <input id="newCatName" placeholder="e.g. Poster">
+                <select id="parentCatSelect">
+                  <option value="">Main Category</option>
+                </select>
+                <button class="primary" onclick="addCategory()" style="padding: 10px;">Add</button>
+              </div>
+            </div>
+            <div id="categoryList" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 8px;">
+              <!-- Categories chips -->
             </div>
           </div>
-          <div id="categoryList" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px;">
-            <!-- Categories chips -->
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Add New Work</h2>
-        
-        <div class="form-group">
-          <label>Project ID</label>
-          <input id="workId" placeholder="Auto-generated..." disabled style="background: #f1f5f9;">
-        </div>
-
-        <div class="form-group">
-          <label>Category</label>
-          <select id="cat" onchange="updateSubCats()">
-            <option value="">Select Category</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>Sub-Category</label>
-          <select id="subcat">
-            <option value="">Select Sub-Category</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>Media Link (Dropbox/YouTube)</label>
-          <input id="img" placeholder="Paste URL here...">
-        </div>
-
-        <button class="primary" onclick="save()">Publish to Portfolio</button>
-      </div>
-
-      <div class="list-container">
-        <h3>Live Portfolio Items</h3>
-        <div id="list">
-          <!-- Loaded via JS -->
         </div>
       </div>
     </div>

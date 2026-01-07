@@ -196,11 +196,16 @@ function renderGrid() {
       mediaHtml = `<img src="${w.image}" onclick="openFocus(${JSON.stringify(w).replace(/"/g, '&quot;')})" style="width:100%; border-radius: 12px; display:block; cursor: pointer;" onerror="this.src='https://placehold.co/400x300?text=Media+Error'">`;
     }
 
-    card.innerHTML = `
-        ${mediaHtml}
+    const isAdmin = localStorage.getItem('grafx_admin_logged_in') === 'true';
+    const deleteBtn = isAdmin ? `
         <button onclick="deleteWork('${w.id}')" style="position:absolute; top:10px; right:10px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
             <i class="fa-solid fa-trash-can" style="font-size: 14px;"></i>
         </button>
+    ` : '';
+
+    card.innerHTML = `
+        ${mediaHtml}
+        ${deleteBtn}
     `;
     grid.appendChild(card);
   });

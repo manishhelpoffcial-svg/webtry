@@ -232,6 +232,17 @@ def delete_inquiry(id):
 def favicon():
     return send_from_directory(os.path.join(DIRECTORY, 'assets'), 'favicon.ico')
 
+@app.route('/<path:path>')
+def static_files(path):
+    if path.endswith('.html'):
+        if path == 'index.html': return redirect('/home')
+        if path == 'admin.html': return redirect('/admin')
+        if path == 'ct.html': return redirect('/contactus')
+        if path == 'about.html': return redirect('/aboutus')
+        if path == 'wpage.html': return redirect('/portfolio')
+        return redirect('/' + path[:-5])
+    return send_from_directory(DIRECTORY, path)
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)

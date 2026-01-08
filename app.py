@@ -49,7 +49,7 @@ def login():
 <head>
     <title>Login - GrafxCore</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" type="image/jpeg" href="/favicon.jpg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background: #f6f7f8; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
@@ -228,21 +228,10 @@ def delete_inquiry(id):
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-@app.route('/favicon.jpg')
+@app.route('/favicon.ico')
 def favicon():
-    return send_from_directory(DIRECTORY, 'favicon.jpg')
-
-@app.route('/<path:path>')
-def static_files(path):
-    if path.endswith('.html'):
-        if path == 'index.html': return redirect('/home')
-        if path == 'admin.html': return redirect('/admin')
-        if path == 'ct.html': return redirect('/contactus')
-        if path == 'about.html': return redirect('/aboutus')
-        if path == 'wpage.html': return redirect('/portfolio')
-        return redirect('/' + path[:-5])
-    return send_from_directory(DIRECTORY, path)
+    return send_from_directory(os.path.join(DIRECTORY, 'assets'), 'favicon.ico')
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))
+    port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)

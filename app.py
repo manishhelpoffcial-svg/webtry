@@ -1,7 +1,7 @@
+import os
+import psycopg2
 from flask import Flask, render_template_string, request, session, redirect, url_for, send_from_directory, jsonify
 from flask_cors import CORS
-import os
-from supabase import create_client, Client
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -11,12 +11,70 @@ app.secret_key = "grafxcore_secret_key"
 # Path resolution
 DIRECTORY = "client"
 
-# Supabase Configuration
-SUPABASE_URL = "https://hpozbywseixlfjkmouzu.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhwb3pieXdzZWl4bGZqa21vdXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2NzA2NzQsImV4cCI6MjA4MzI0NjY3NH0.Groc8oCK5XJKAX8bRHwbPU0DmGOhDJDzUbRTo7l9XFU"
+# Database connection
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
-# Initialize Supabase Client
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+def get_db_connection():
+    if DATABASE_URL:
+        try:
+            return psycopg2.connect(DATABASE_URL)
+        except Exception as e:
+            print(f"DB Connection Error: {e}")
+            return None
+    return None
+
+def init_db():
+    conn = get_db_connection()
+    if conn:
+        cur = conn.cursor()
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS categories (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                parent_id TEXT REFERENCES categories(id)
+            );
+            CREATE TABLE IF NOT EXISTS works (
+                id TEXT PRIMARY KEY,
+                image TEXT NOT NULL,
+                category_id TEXT,
+                subcategory_id TEXT,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS inquiries (
+                id SERIAL PRIMARY KEY,
+                name TEXT,
+                email TEXT,
+                budget TEXT,
+                message TEXT,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            );
+        """)
+        
+        # Insert default categories if empty
+        cur.execute("SELECT COUNT(*) FROM categories")
+        row = cur.fetchone()
+        if row and row[0] == 0:
+            default_cats = [
+                ('graphic_design', 'Graphics Design', None),
+                ('video_editing', 'Video Editing', None),
+                ('poster', 'Poster', 'graphic_design'),
+                ('logo', 'Logo', 'graphic_design'),
+                ('menu_card', 'Menu Card', 'graphic_design'),
+                ('business_card', 'Business Card', 'graphic_design'),
+                ('thumbnail', 'Thumbnail', 'graphic_design'),
+                ('short_video', 'Short Video', 'video_editing'),
+                ('long_video', 'Long Video', 'video_editing'),
+                ('wedding_video', 'Wedding Video', 'video_editing')
+            ]
+            for cat in default_cats:
+                cur.execute("INSERT INTO categories (id, name, parent_id) VALUES (%s, %s, %s) ON CONFLICT DO NOTHING", cat)
+        
+        conn.commit()
+        cur.close()
+        conn.close()
+
+# Initialize DB
+init_db()
 
 # Admin Credentials
 ADMIN_EMAIL = "manish@grafxcore.in"
@@ -104,129 +162,159 @@ def portfolio_clean():
 
 @app.route('/api/categories', methods=['GET'])
 def get_categories():
-    try:
-        response = supabase.table('categories').select("*").order("name").execute()
-        return jsonify(response.data)
-    except Exception as e:
-        print(f"Supabase Error: {e}")
-        return jsonify([])
+    conn = get_db_connection()
+    if conn:
+        cur = conn.cursor()
+        cur.execute("SELECT id, name, parent_id FROM categories ORDER BY name")
+        rows = cur.fetchall()
+        data = [{"id": r[0], "name": r[1], "parent_id": r[2]} for r in rows]
+        cur.close()
+        conn.close()
+        return jsonify(data)
+    return jsonify([])
 
 @app.route('/api/categories', methods=['POST'])
 def add_category():
     if not session.get('logged_in'):
         return jsonify({"status": "error", "message": "Unauthorized"}), 401
     data = request.json
-    try:
-        supabase.table('categories').insert({
-            "name": data.get('name'),
-            "parent_id": data.get('parent_id')
-        }).execute()
-        return jsonify({"status": "success"}), 201
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+    conn = get_db_connection()
+    if conn:
+        cur = conn.cursor()
+        try:
+            cat_id = data.get('name').lower().replace(' ', '_')
+            cur.execute("INSERT INTO categories (id, name, parent_id) VALUES (%s, %s, %s) ON CONFLICT DO NOTHING", 
+                       (cat_id, data.get('name'), data.get('parent_id')))
+            conn.commit()
+            return jsonify({"status": "success"}), 201
+        except Exception as e:
+            return jsonify({"status": "error", "message": str(e)}), 500
+        finally:
+            cur.close()
+            conn.close()
+    return jsonify({"status": "error", "message": "DB not connected"}), 500
 
 @app.route('/api/categories/<id>', methods=['DELETE'])
 def delete_category(id):
     if not session.get('logged_in'):
         return jsonify({"status": "error", "message": "Unauthorized"}), 401
-    try:
-        supabase.table('categories').delete().eq("id", id).execute()
-        return jsonify({"status": "success"})
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
-
-@app.route('/api/categories/<id>', methods=['PUT'])
-def update_category(id):
-    if not session.get('logged_in'):
-        return jsonify({"status": "error", "message": "Unauthorized"}), 401
-    data = request.json
-    try:
-        supabase.table('categories').update({"name": data.get('name')}).eq("id", id).execute()
-        return jsonify({"status": "success"})
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+    conn = get_db_connection()
+    if conn:
+        cur = conn.cursor()
+        try:
+            cur.execute("DELETE FROM categories WHERE id = %s", (id,))
+            conn.commit()
+            return jsonify({"status": "success"})
+        except Exception as e:
+            return jsonify({"status": "error", "message": str(e)}), 500
+        finally:
+            cur.close()
+            conn.close()
+    return jsonify({"status": "error"}), 500
 
 @app.route('/api/works', methods=['GET'])
 def get_works():
-    try:
-        response = supabase.table('works').select("*").order("created_at", desc=True).execute()
-        return jsonify(response.data)
-    except Exception as e:
-        return jsonify([])
+    conn = get_db_connection()
+    if conn:
+        cur = conn.cursor()
+        cur.execute("SELECT id, image, category_id, subcategory_id, created_at FROM works ORDER BY created_at DESC")
+        rows = cur.fetchall()
+        data = [{"id": r[0], "image": r[1], "category_id": r[2], "subcategory_id": r[3], "created_at": r[4]} for r in rows]
+        cur.close()
+        conn.close()
+        return jsonify(data)
+    return jsonify([])
 
 @app.route('/api/works', methods=['POST'])
 def add_work():
     if not session.get('logged_in'):
         return jsonify({"status": "error", "message": "Unauthorized"}), 401
     data = request.json
-    try:
-        supabase.table('works').insert(data).execute()
-        return jsonify({"status": "success"}), 201
-    except Exception as e:
-        return jsonify({"status": "success", "note": "Local fallback enabled"}), 201
+    conn = get_db_connection()
+    if conn:
+        cur = conn.cursor()
+        try:
+            cur.execute("INSERT INTO works (id, image, category_id, subcategory_id) VALUES (%s, %s, %s, %s)",
+                       (data.get('id'), data.get('image'), data.get('category_id'), data.get('subcategory_id')))
+            conn.commit()
+            return jsonify({"status": "success"}), 201
+        except Exception as e:
+            return jsonify({"status": "error", "message": str(e)}), 500
+        finally:
+            cur.close()
+            conn.close()
+    return jsonify({"status": "error"}), 500
 
 @app.route('/api/works/<id>', methods=['DELETE'])
 def delete_work(id):
     if not session.get('logged_in'):
         return jsonify({"status": "error", "message": "Unauthorized"}), 401
-    try:
-        supabase.table('works').delete().eq("id", id).execute()
-        return jsonify({"status": "success"})
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
-
-@app.route('/api/works/<id>', methods=['PUT'])
-def update_work(id):
-    if not session.get('logged_in'):
-        return jsonify({"status": "error", "message": "Unauthorized"}), 401
-    data = request.json
-    try:
-        supabase.table('works').update({
-            "image": data.get('image'),
-            "category_id": data.get('category_id'),
-            "subcategory_id": data.get('subcategory_id')
-        }).eq("id", id).execute()
-        return jsonify({"status": "success"})
-    except Exception as e:
-        return jsonify({"status": "success", "note": "Local update only"})
+    conn = get_db_connection()
+    if conn:
+        cur = conn.cursor()
+        try:
+            cur.execute("DELETE FROM works WHERE id = %s", (id,))
+            conn.commit()
+            return jsonify({"status": "success"})
+        except Exception as e:
+            return jsonify({"status": "error", "message": str(e)}), 500
+        finally:
+            cur.close()
+            conn.close()
+    return jsonify({"status": "error"}), 500
 
 @app.route('/api/inquiries', methods=['POST', 'OPTIONS'])
 def add_inquiry():
     if request.method == 'OPTIONS':
         return '', 204
     data = request.json
-    if not data:
-        return jsonify({"status": "error", "message": "No data received"}), 400
-    try:
-        supabase.table('inquiries').insert({
-            "name": str(data.get('name', '')),
-            "email": str(data.get('email', '')),
-            "budget": str(data.get('budget', '0')),
-            "message": str(data.get('message', ''))
-        }).execute()
-        return jsonify({"status": "success"}), 201
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+    conn = get_db_connection()
+    if conn:
+        cur = conn.cursor()
+        try:
+            cur.execute("INSERT INTO inquiries (name, email, budget, message) VALUES (%s, %s, %s, %s)",
+                       (data.get('name'), data.get('email'), data.get('budget'), data.get('message')))
+            conn.commit()
+            return jsonify({"status": "success"}), 201
+        except Exception as e:
+            return jsonify({"status": "error", "message": str(e)}), 500
+        finally:
+            cur.close()
+            conn.close()
+    return jsonify({"status": "error"}), 500
 
 @app.route('/api/inquiries', methods=['GET'])
 def get_inquiries():
     if not session.get('logged_in'):
         return jsonify({"status": "error", "message": "Unauthorized"}), 401
-    try:
-        response = supabase.table('inquiries').select("*").order("created_at", desc=True).execute()
-        return jsonify(response.data)
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+    conn = get_db_connection()
+    if conn:
+        cur = conn.cursor()
+        cur.execute("SELECT id, name, email, budget, message, created_at FROM inquiries ORDER BY created_at DESC")
+        rows = cur.fetchall()
+        data = [{"id": r[0], "name": r[1], "email": r[2], "budget": r[3], "message": r[4], "created_at": r[5]} for r in rows]
+        cur.close()
+        conn.close()
+        return jsonify(data)
+    return jsonify([])
 
 @app.route('/api/inquiries/<id>', methods=['DELETE'])
 def delete_inquiry(id):
     if not session.get('logged_in'):
         return jsonify({"status": "error", "message": "Unauthorized"}), 401
-    try:
-        supabase.table('inquiries').delete().eq("id", id).execute()
-        return jsonify({"status": "success"})
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+    conn = get_db_connection()
+    if conn:
+        cur = conn.cursor()
+        try:
+            cur.execute("DELETE FROM inquiries WHERE id = %s", (id,))
+            conn.commit()
+            return jsonify({"status": "success"})
+        except Exception as e:
+            return jsonify({"status": "error", "message": str(e)}), 500
+        finally:
+            cur.close()
+            conn.close()
+    return jsonify({"status": "error"}), 500
 
 @app.route('/favicon.ico')
 def favicon():
@@ -244,5 +332,5 @@ def static_files(path):
     return send_from_directory(DIRECTORY, path)
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))
+    port = 5000
     app.run(host="0.0.0.0", port=port)

@@ -10,16 +10,8 @@ async function init() {
       fetch('/api/categories')
     ]);
     
-    let dbWorks = await worksRes.json();
-    const dbCats = await catsRes.json();
-    const localWorks = JSON.parse(localStorage.getItem('grafx_works_fallback') || '[]');
-    
-    const workMap = new Map();
-    dbWorks.forEach(w => workMap.set(String(w.id), w));
-    localWorks.forEach(w => workMap.set(String(w.id), w));
-    
-    allWorks = Array.from(workMap.values());
-    categories = dbCats;
+    allWorks = await worksRes.json();
+    categories = await catsRes.json();
     
     if (!categories || categories.length === 0) {
       categories = [

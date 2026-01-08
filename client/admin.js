@@ -144,16 +144,9 @@ async function deleteCategory(id) {
 async function getData() {
   try {
     const res = await fetch('/api/works');
-    let dbData = await res.json();
-    const localWorks = JSON.parse(localStorage.getItem('grafx_works_fallback') || '[]');
-    
-    const workMap = new Map();
-    dbData.forEach(w => workMap.set(String(w.id), w));
-    localWorks.forEach(w => workMap.set(String(w.id), w));
-    
-    return Array.from(workMap.values());
+    return await res.json();
   } catch (e) {
-    return JSON.parse(localStorage.getItem('grafx_works_fallback') || '[]');
+    return [];
   }
 }
 
@@ -191,17 +184,13 @@ async function save() {
       body: JSON.stringify(work)
     });
 
-    const localData = JSON.parse(localStorage.getItem('grafx_works_fallback') || '[]');
-    localData.push(work);
-    localStorage.setItem('grafx_works_fallback', JSON.stringify(localData));
-
     img.value = "";
     cat.value = "";
     if (subcat) subcat.value = "";
     render();
     alert("Work published successfully!");
   } catch (e) {
-    alert("Saved locally (Server issue)");
+    alert("Error saving work to database");
   }
 }
 

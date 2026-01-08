@@ -6,3 +6,4 @@ python-dotenv==1.2.1
 requests==2.32.5
 postgrest==2.27.0
 PyJWT==2.10.1
+psycopg2-binary

@@ -1,5 +1,4 @@
 import os
-import psycopg2
 from flask import Flask, render_template_string, request, session, redirect, url_for, send_from_directory, jsonify
 from flask_cors import CORS
 
@@ -227,5 +226,5 @@ def static_files(path):
     return send_from_directory(DIRECTORY, path)
 
 if __name__ == "__main__":
-    port = 5000
+    port = int(os.environ.get("PORT", 8000))
     app.run(host="0.0.0.0", port=port)

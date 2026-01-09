@@ -13,6 +13,9 @@ async function init() {
     allWorks = await worksRes.json();
     categories = await catsRes.json();
     
+    // Clear legacy fallback if database is successfully reached
+    localStorage.removeItem('grafx_works_fallback');
+    
     if (!categories || categories.length === 0) {
       categories = [
         { id: 'graphic_design', name: 'Graphics Design', parent_id: null },

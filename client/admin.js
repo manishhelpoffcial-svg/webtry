@@ -252,8 +252,14 @@ function isVideoLink(url) {
 }
 
 async function render() {
-  const data = await getData();
-  updateStats(data);
+  try {
+    const response = await fetch('/api/works');
+    const data = await response.json();
+    
+    // Clear legacy fallback if database is successfully reached
+    localStorage.removeItem('grafx_works_fallback');
+    
+    updateStats(data);
   const idField = document.getElementById('workId');
   if (idField) idField.value = getNextId(data);
 

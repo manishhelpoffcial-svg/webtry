@@ -13,8 +13,8 @@ async function init() {
     allWorks = await worksRes.json();
     categories = await catsRes.json();
     
-    // Clear legacy fallback if database is successfully reached
-    localStorage.removeItem('grafx_works_fallback');
+    // Completely clear all old local storage to prevent ghost data
+    localStorage.clear();
     
     if (!categories || categories.length === 0) {
       categories = [
@@ -34,7 +34,7 @@ async function init() {
     renderCategoryBar();
     renderGrid();
   } catch (e) { 
-    allWorks = JSON.parse(localStorage.getItem('grafx_works_fallback') || '[]');
+    allWorks = [];
     renderCategoryBar();
     renderGrid();
   }

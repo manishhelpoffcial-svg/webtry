@@ -256,8 +256,8 @@ async function render() {
     const response = await fetch('/api/works');
     const data = await response.json();
     
-    // Clear legacy fallback if database is successfully reached
-    localStorage.removeItem('grafx_works_fallback');
+    // Completely clear all old local storage to prevent ghost data
+    localStorage.clear();
     
     updateStats(data);
   const idField = document.getElementById('workId');

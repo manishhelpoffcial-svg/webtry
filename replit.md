@@ -26,12 +26,12 @@ Preferred communication style: Simple, everyday language.
 - **CORS**: Enabled for all origins to support client-side API calls
 
 ### Data Storage
-- **Supabase**: PostgreSQL-based backend-as-a-service
-- **Tables** (inferred from API usage):
-  - `works` - Portfolio items with category associations
-  - `categories` - Hierarchical categories with parent-child relationships
-  - `inquiries` - Contact form submissions
-- **Fallback Strategy**: Client-side localStorage used as fallback when API fails
+- **Supabase**: PostgreSQL database used for all data storage.
+- **Connection**: Using direct PostgreSQL connection string.
+- **Tables**:
+  - `works`: Portfolio items.
+  - `categories`: Hierarchical categories.
+  - `inquiries`: Contact form submissions.
 
 ### Admin Panel
 - Session-protected admin interface at `/admin`

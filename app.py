@@ -12,7 +12,7 @@ app.secret_key = "grafxcore_secret_key"
 DIRECTORY = "client"
 
 # Database connection
-DATABASE_URL = os.environ.get("DATABASE_URL")
+DATABASE_URL = "postgresql://postgres:wU85Vs9%26FtNJqRh@db.hpozbywseixlfjkmouzu.supabase.co:5432/postgres"
 
 def get_db_connection():
     if DATABASE_URL:

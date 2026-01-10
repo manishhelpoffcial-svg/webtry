@@ -25,6 +25,7 @@ async function fetchCategories() {
     updateCategorySelects();
     renderCategories();
   } catch (e) { 
+    console.error("Fetch categories error:", e);
     categories = [
         { id: 'graphic_design', name: 'Graphics Design', parent_id: null },
         { id: 'video_editing', name: 'Video Editing', parent_id: null }
@@ -41,7 +42,7 @@ function updateCategorySelects() {
 
   const mainCats = categories.filter(c => !c.parent_id);
   mainSelect.innerHTML = '<option value="">Select Category</option>';
-  parentSelect.innerHTML = '<option value="">Main Category</option>';
+  parentSelect.innerHTML = '<option value="">Main Category (Leave empty for new main category)</option>';
 
   mainCats.forEach(c => {
     const opt1 = document.createElement("option");
@@ -60,7 +61,7 @@ function updateSubCats() {
   const catId = document.getElementById("cat").value;
   const sub = document.getElementById("subcat");
   if (!sub) return;
-  sub.innerHTML = '<option value="">Select Sub-Category</option>';
+  sub.innerHTML = '<option value="">Select Sub-Category (Optional)</option>';
   if (!catId) return;
 
   const subCats = categories.filter(c => String(c.parent_id) === String(catId));
@@ -73,9 +74,12 @@ function updateSubCats() {
 }
 
 async function addCategory() {
-  const name = document.getElementById('newCatName').value.trim();
-  const parent_id = document.getElementById('parentCatSelect').value || null;
-  if (!name) return alert("Enter name");
+  const nameInput = document.getElementById('newCatName');
+  const parentInput = document.getElementById('parentCatSelect');
+  const name = nameInput.value.trim();
+  const parent_id = parentInput.value || null;
+  
+  if (!name) return alert("Please enter a category name");
 
   try {
     const res = await fetch('/api/categories', {
@@ -84,10 +88,17 @@ async function addCategory() {
       body: JSON.stringify({ name, parent_id })
     });
     if (res.ok) {
-      document.getElementById('newCatName').value = "";
-      fetchCategories();
+      nameInput.value = "";
+      parentInput.value = "";
+      alert("Category added successfully!");
+      await fetchCategories();
+    } else {
+      const err = await res.json();
+      alert("Error: " + (err.message || "Failed to add category"));
     }
-  } catch (e) {}
+  } catch (e) {
+    alert("Network error: " + e.message);
+  }
 }
 
 function renderCategories() {
@@ -120,25 +131,37 @@ function renderCategories() {
 async function editCategory(id, currentName) {
   const newName = prompt("Enter new name for category:", currentName);
   if (!newName || newName.trim() === currentName) return;
-  await fetch(`/api/categories/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: newName.trim() })
-  });
-  fetchCategories();
+  try {
+    await fetch(`/api/categories/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: newName.trim() })
+    });
+    fetchCategories();
+  } catch (e) {
+    alert("Error updating category");
+  }
 }
 
 function getCategoryIcon(name) {
   const lower = name.toLowerCase();
-  if (lower.includes('graphic')) return '<i class="fa-solid fa-palette"></i>';
-  if (lower.includes('video')) return '<i class="fa-solid fa-video"></i>';
-  return '<i class="fa-solid fa-tag"></i>';
+  if (lower.includes('graphic')) return '<i class="fa-solid fa-palette" style="color:#10b981"></i>';
+  if (lower.includes('video')) return '<i class="fa-solid fa-video" style="color:#10b981"></i>';
+  return '<i class="fa-solid fa-tag" style="color:#10b981"></i>';
 }
 
 async function deleteCategory(id) {
-  if (!confirm("Delete category?")) return;
-  await fetch(`/api/categories/${id}`, { method: 'DELETE' });
-  fetchCategories();
+  if (!confirm("Delete category? Items in this category might lose their link.")) return;
+  try {
+    const res = await fetch(`/api/categories/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      fetchCategories();
+    } else {
+      alert("Could not delete category");
+    }
+  } catch (e) {
+    alert("Error deleting category");
+  }
 }
 
 async function getData() {
@@ -146,6 +169,7 @@ async function getData() {
     const res = await fetch('/api/works');
     return await res.json();
   } catch (e) {
+    console.error("Fetch works error:", e);
     return [];
   }
 }
@@ -166,31 +190,36 @@ async function save() {
 
   if (!img || !img.value || !cat || !cat.value) return alert("Please fill media link and category");
 
-  const data = await getData();
-  const nextId = getNextId(data);
-
-  const work = {
-    id: nextId,
-    category_id: cat.value,
-    subcategory_id: (subcat && subcat.value) || null,
-    image: img.value.trim(),
-    created_at: new Date().toISOString()
-  };
-
   try {
-    await fetch('/api/works', {
+    const data = await getData();
+    const nextId = getNextId(data);
+
+    const work = {
+      id: nextId,
+      category_id: cat.value,
+      subcategory_id: subcat.value || null,
+      image: img.value.trim(),
+      created_at: new Date().toISOString()
+    };
+
+    const res = await fetch('/api/works', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(work)
     });
 
-    img.value = "";
-    cat.value = "";
-    if (subcat) subcat.value = "";
-    render();
-    alert("Work published successfully!");
+    if (res.ok) {
+      img.value = "";
+      cat.value = "";
+      subcat.innerHTML = '<option value="">Select Sub-Category (Optional)</option>';
+      alert("Work published successfully!");
+      await render();
+    } else {
+      const err = await res.json();
+      alert("Error: " + (err.message || "Could not publish work"));
+    }
   } catch (e) {
-    alert("Error saving work to database");
+    alert("Error saving work to database: " + e.message);
   }
 }
 
@@ -207,13 +236,14 @@ function getNextId(data) {
 async function del(id) {
   if (!confirm("Remove this item?")) return;
   try {
-    await fetch(`/api/works/${encodeURIComponent(id)}`, { method: 'DELETE' });
-    const localData = JSON.parse(localStorage.getItem('grafx_works_fallback') || '[]');
-    const filtered = localData.filter(w => w.id !== id);
-    localStorage.setItem('grafx_works_fallback', JSON.stringify(filtered));
-    render();
+    const res = await fetch(`/api/works/${encodeURIComponent(id)}`, { method: 'DELETE' });
+    if (res.ok) {
+      render();
+    } else {
+      alert("Could not delete item");
+    }
   } catch (e) {
-    alert("Removed from session");
+    alert("Error deleting item");
   }
 }
 
@@ -227,18 +257,14 @@ async function editWork(id) {
 
   const updatedWork = { ...work, image: newImg.trim() };
   try {
-    await fetch(`/api/works/${encodeURIComponent(id)}`, {
+    const res = await fetch(`/api/works/${encodeURIComponent(id)}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updatedWork)
     });
-    const localData = JSON.parse(localStorage.getItem('grafx_works_fallback') || '[]');
-    const idx = localData.findIndex(w => w.id === id);
-    if (idx !== -1) {
-      localData[idx] = updatedWork;
-      localStorage.setItem('grafx_works_fallback', JSON.stringify(localData));
+    if (res.ok) {
+      render();
     }
-    render();
   } catch (e) {}
 }
 
@@ -260,39 +286,42 @@ async function render() {
     localStorage.clear();
     
     updateStats(data);
-  const idField = document.getElementById('workId');
-  if (idField) idField.value = getNextId(data);
+    const idField = document.getElementById('workId');
+    if (idField) idField.value = getNextId(data);
 
-  if (!list) return;
-  list.innerHTML = "";
-  if (data.length === 0) {
-    list.innerHTML = "<p style='padding: 20px; text-align: center; color: #64748b;'>No items in portfolio.</p>";
-    return;
-  }
-
-  data.forEach((w) => {
-    const d = document.createElement("div");
-    d.className = "item";
-    let preview = "";
-    const isVideo = isVideoLink(w.image);
-    
-    if (isVideo) {
-      preview = '<i class="fa-solid fa-video" style="font-size: 24px; color: #10b981; width: 60px; text-align: center;"></i>';
-    } else {
-      preview = `<img src="${w.image}" style="width:60px; height:40px; object-fit:cover; border-radius:4px;" onerror="this.src='https://placehold.co/100x100?text=Media'">`;
+    if (!list) return;
+    list.innerHTML = "";
+    if (data.length === 0) {
+      list.innerHTML = "<p style='padding: 20px; text-align: center; color: #64748b;'>No items in portfolio.</p>";
+      return;
     }
-    
-    const catName = categories.find(c => String(c.id) === String(w.category_id))?.name || "Unknown";
-    d.innerHTML = `
-      ${preview}
-      <div class="item-info"><b>${w.id}</b><br><small>${catName}</small></div>
-      <div style="margin-left:auto; display:flex; gap:5px;">
-        <button class="btn-edit" onclick="editWork('${w.id}')" style="padding:4px 8px; border-radius:4px; border:none; background:#f1f5f9;"><i class="fa-solid fa-pen"></i></button>
-        <button class="btn-delete" onclick="del('${w.id}')" style="padding:4px 8px; border-radius:4px; border:none; background:#fee2e2; color:#ef4444;"><i class="fa-solid fa-trash"></i></button>
-      </div>
-    `;
-    list.appendChild(d);
-  });
+
+    data.forEach((w) => {
+      const d = document.createElement("div");
+      d.className = "item";
+      let preview = "";
+      const isVideo = isVideoLink(w.image);
+      
+      if (isVideo) {
+        preview = '<i class="fa-solid fa-video" style="font-size: 24px; color: #10b981; width: 60px; text-align: center;"></i>';
+      } else {
+        preview = `<img src="${w.image}" style="width:60px; height:40px; object-fit:cover; border-radius:4px;" onerror="this.src='https://placehold.co/100x100?text=Media'">`;
+      }
+      
+      const catName = categories.find(c => String(c.id) === String(w.category_id))?.name || "Unknown";
+      d.innerHTML = `
+        ${preview}
+        <div class="item-info"><b>${w.id}</b><br><small>${catName}</small></div>
+        <div style="margin-left:auto; display:flex; gap:5px;">
+          <button class="btn-edit" onclick="editWork('${w.id}')" style="padding:4px 8px; border-radius:4px; border:none; background:#f1f5f9;"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn-delete" onclick="del('${w.id}')" style="padding:4px 8px; border-radius:4px; border:none; background:#fee2e2; color:#ef4444;"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      `;
+      list.appendChild(d);
+    });
+  } catch (error) {
+    console.error("Render error:", error);
+  }
 }
 
 async function renderInquiries() {

@@ -104,7 +104,7 @@ def portfolio_clean():
 @app.route('/api/db-check')
 def db_check():
     try:
-        supabase.table('categories').select("id").limit(1).execute()
+        supabase.table('categories_v2').select("id").limit(1).execute()
         return jsonify({"status": "connected", "message": "Successfully connected to Supabase!"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
@@ -112,7 +112,7 @@ def db_check():
 @app.route('/api/categories', methods=['GET'])
 def get_categories():
     try:
-        res = supabase.table('categories').select("*").order("name").execute()
+        res = supabase.table('categories_v2').select("*").order("name").execute()
         return jsonify(res.data)
     except Exception as e:
         print(f"Supabase Error: {e}")
@@ -125,7 +125,7 @@ def add_category():
     data = request.json
     try:
         cat_id = data.get('name').lower().replace(' ', '_')
-        supabase.table('categories').insert({
+        supabase.table('categories_v2').insert({
             "id": cat_id,
             "name": data.get('name'),
             "parent_id": data.get('parent_id')
@@ -139,7 +139,7 @@ def delete_category(id):
     if not session.get('logged_in'):
         return jsonify({"status": "error", "message": "Unauthorized"}), 401
     try:
-        supabase.table('categories').delete().eq("id", id).execute()
+        supabase.table('categories_v2').delete().eq("id", id).execute()
         return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
@@ -147,7 +147,7 @@ def delete_category(id):
 @app.route('/api/works', methods=['GET'])
 def get_works():
     try:
-        res = supabase.table('works').select("*").order("created_at", desc=True).execute()
+        res = supabase.table('works_v2').select("*").execute()
         return jsonify(res.data)
     except Exception as e:
         print(f"Supabase Error: {e}")
@@ -159,17 +159,19 @@ def add_work():
         return jsonify({"status": "error", "message": "Unauthorized"}), 401
     data = request.json
     try:
-        supabase.table('works').insert(data).execute()
+        supabase.table('works_v2').insert(data).execute()
         return jsonify({"status": "success"}), 201
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        error_msg = str(e)
+        print(f"Insert Error: {error_msg}")
+        return jsonify({"status": "error", "message": error_msg}), 500
 
 @app.route('/api/works/<id>', methods=['DELETE'])
 def delete_work(id):
     if not session.get('logged_in'):
         return jsonify({"status": "error", "message": "Unauthorized"}), 401
     try:
-        supabase.table('works').delete().eq("id", id).execute()
+        supabase.table('works_v2').delete().eq("id", id).execute()
         return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
